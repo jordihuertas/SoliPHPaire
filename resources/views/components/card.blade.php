@@ -1,8 +1,8 @@
 <div class="poker-card poker-card--{{ $typeName }} ratio ratio-2x3">
-{{--    @if (!$reverse)--}}
+    @if(!$isHidden)
         <i class="icon bi bi-suit-{{ $typeName }}-fill float-end"></i>
-{{--    @endif--}}
+    @endif
     <div class="d-flex align-items-center justify-content-center text-center poker-card--number">
-        <span class="gradient-text">{{ $number }}</span>
+        <span class="gradient-text">@if(!$isHidden){{ $number }}@endif</span>
     </div>
 </div>
