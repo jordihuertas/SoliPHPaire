@@ -14,9 +14,10 @@
     color: #313149
     padding: 10px
     border: 1px solid transparent
+    user-select: none
 
     &:hover
-        background: linear-gradient(#0C0C0C 0 0, #0C0C0C) padding-box, linear-gradient(45deg,transparent 5%,rgb(255, 215, 137) 50%, transparent 99%) border-box
+        // hover fx
 
     .icon
         font-size: 20px
@@ -35,14 +36,10 @@
         -webkit-text-fill-color: transparent
 
     &--hidden
-        //--s: 50px
-        //--c1: #1d1d1d
-        //--c2: #4e4f51
-        //--c3: #3c3c3c
-        //background: repeating-conic-gradient(from 30deg,#0000 0 120deg, var(--c3) 0 180deg) calc(.5*var(--s)) calc(.5*var(--s)*0.577), repeating-conic-gradient(from 30deg,var(--c1) 0 60deg, var(--c2) 0 120deg, var(--c3) 0 180deg)
-        //background-size: var(--s) calc(var(--s)*0.577)
-
-        //&:hover
+        background: radial-gradient(circle at top,transparent 60%, #222222 61%,#222222 66%, transparent 67%),radial-gradient(circle at bottom,transparent 60%, #222222 61%,#222222 66%, transparent 67%),radial-gradient(circle at left,transparent 60%, #222222 61%,#222222 66%, transparent 67%),radial-gradient(circle at right,transparent 60%, #222222 61%,#222222 66%, transparent 67%)
+        background-size: 1em 1em
+        background-color: #0c0c0c
+        opacity: 1
 
 
     &--heart
