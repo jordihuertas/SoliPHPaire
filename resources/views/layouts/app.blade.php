@@ -15,5 +15,7 @@
     <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
         @yield("content")
     </div>
+
+    @stack('custom-scripts')
 </body>
 </html>

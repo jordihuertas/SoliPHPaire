@@ -174,3 +174,7 @@
         <p>Made by Jordi Huertas</p>
     </footer>
 @endsection
+
+@push('custom-scripts')
+{{--    @vite(['resources/js/test.js']) I think that I remember it should be added to vite config--}}
+@endpush
