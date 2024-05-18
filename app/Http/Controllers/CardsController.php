@@ -10,11 +10,12 @@ class CardsController extends Controller
 {
     public function getAllCards()
     {
+        // Get all cards and shuffle
         $cards = Cards::all();
-        //$cards = Card::all()->shuffle();
-        $card_types = CardTypes::all();
+//        $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
 
-        // Setup cards
+        // Setup cards types
+        $card_types = CardTypes::all();
         foreach ($cards as $card) {
             $card->isHidden = true;
             foreach ($card_types as $card_type) {

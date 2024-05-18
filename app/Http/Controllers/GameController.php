@@ -9,7 +9,6 @@ class GameController extends Controller
 {
     public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
-//        $card = $this->generateCard();
         $card_controller = new CardsController();
         $cards = $card_controller->getAllCards();
 
@@ -19,12 +18,8 @@ class GameController extends Controller
         return view('game.index', compact('cards'));
     }
 
-    private function generateCard(){
-        return view('components.card')->render();
-//        return view('components.card', compact(['gift_card', 'used_money_beautified', 'money_left_beautified', 'outstanding_beautified']))->render();
-    }
-
-    private function shuffleCards($cards){
+    private function shuffleCards($cards): \stdClass
+    {
         // Deck init
         $main_deck = [];
         $decks = [];
@@ -38,6 +33,8 @@ class GameController extends Controller
             for ($j = $i; $j <= 7; $j++) {
                 if ($cardIndex < count($cards)) {
                     $card = $cards[$cardIndex++];
+                    $card->deck = strval($j);
+                    $card->position = strval($i);
                     $decks[$j][] = $card;
                 }
             }
@@ -51,8 +48,13 @@ class GameController extends Controller
         }
 
         // Add the remaining cards to the main deck
+        $i = 1;
         while ($cardIndex < count($cards)) {
-            $main_deck[] = $cards[$cardIndex++];
+            $card = $cards[$cardIndex++];
+            $card->deck = "0";
+            $card->position = strval($i);
+            $main_deck[] = $card;
+            $i++;
         }
 
         // Mount result

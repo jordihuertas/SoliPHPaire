@@ -13,28 +13,32 @@ class Card extends Component
      * @param $number
      * @param $typeName
      * @param $isHidden
+     * @param $cardDeck
+     * @param $cardPosition
      */
 
     private string $number;
     private string $typeName;
     private bool $isHidden;
+    private string $cardDeck;
+    private string $cardPosition;
 
-
-    public function __construct($number, $typeName, $isHidden)
+    public function __construct($number, $typeName, $isHidden, $cardDeck, $cardPosition)
     {
         $this->number = $number;
         $this->typeName = $typeName;
         $this->isHidden = $isHidden;
+        $this->cardDeck = $cardDeck;
+        $this->cardPosition = $cardPosition;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         $number = 'hidden';
         $typeName = 'hidden';
         $isHidden = $this->isHidden;
+        $cardDeck = $this->cardDeck;
+        $cardPosition = $this->cardPosition;
 
         if (!$isHidden){
             $number = $this->number;
@@ -55,6 +59,6 @@ class Card extends Component
             }
         }
 
-        return view('components.card', compact('number', 'typeName', 'isHidden'));
+        return view('components.card', compact('number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition'));
     }
 }

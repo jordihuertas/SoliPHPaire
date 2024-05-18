@@ -1,4 +1,4 @@
-<div class="poker-card poker-card--{{ $typeName }} ratio ratio-2x3">
+<div class="poker-card poker-card--{{ $typeName }} ratio ratio-2x3 mx-auto">
     @if(!$isHidden)
         <i class="icon bi bi-suit-{{ $typeName }}-fill float-end"></i>
     @endif
@@ -6,3 +6,5 @@
         <span class="gradient-text">@if(!$isHidden){{ $number }}@endif</span>
     </div>
 </div>
+
+<span class="small text-secondary">Deck: {{ $cardDeck }} - Pos: {{ $cardPosition }}</span>
