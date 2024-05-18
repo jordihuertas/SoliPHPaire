@@ -1,0 +1,11 @@
+$grid-columns: 7;
+$grid-gutter-width: 1.5rem;
+$grid-row-columns: 7;
+
+$aspect-ratios: (
+    "1x1": 100%,
+    "4x3": calc(3 / 4 * 100%),
+    "16x9": calc(9 / 16 * 100%),
+    "21x9": calc(9 / 21 * 100%),
+    "2x3": calc(3 / 2 * 100%)
+)
