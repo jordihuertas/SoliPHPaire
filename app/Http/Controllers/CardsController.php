@@ -12,7 +12,6 @@ class CardsController extends Controller
     {
         // Get all cards and shuffle
         $cards = Cards::all();
-//        $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
 
         // Setup cards types
         $card_types = CardTypes::all();

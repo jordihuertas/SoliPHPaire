@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Livewire;
 
-use App\View\Components\Card;
-use Illuminate\Http\Request;
+use App\Http\Controllers\CardsController;
+use Livewire\Component;
 
-class GameController extends Controller
+class Game extends Component
 {
-    public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    public function render()
     {
         $card_controller = new CardsController();
         $cards = $card_controller->getAllCards();
+//        $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
 
-        $decks = $this->shuffleCards($cards);
+        $decks = $this->mountDecks($cards);
         $cards = $decks;
 
-        return view('game.index', compact('cards'));
+//        return view('game.index', compact('cards'));
+        return view('livewire.game', compact('cards'));
     }
 
-    private function shuffleCards($cards): \stdClass
+    private function mountDecks($cards): \stdClass
     {
         // Deck init
         $main_deck = [];

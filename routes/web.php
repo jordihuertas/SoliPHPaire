@@ -1,6 +1,8 @@
 <?php
 
+use App\Livewire\Game;
+use App\Livewire\Menu;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [App\Http\Controllers\MainMenuController::class, 'index'])->name('mainMenu');
-Route::get('/game', [App\Http\Controllers\GameController::class, 'index'])->name('game');
+Route::get('/', Menu::class);
+Route::get('/game', Game::class);
