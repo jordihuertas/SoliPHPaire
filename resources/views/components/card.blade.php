@@ -1,4 +1,4 @@
-<div class="poker-card poker-card--{{ $typeName }} ratio ratio-2x3 mx-auto">
+<div class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto">
     @if(!$isHidden)
         <i class="icon bi bi-suit-{{ $typeName }}-fill float-end"></i>
     @endif
@@ -7,4 +7,4 @@
     </div>
 </div>
 
-<span class="small text-secondary">Deck: {{ $cardDeck }} - Pos: {{ $cardPosition }}</span>
+{{--<span class="small text-secondary">Deck: {{ $cardDeck }} - Pos: {{ $cardPosition }}</span>--}}

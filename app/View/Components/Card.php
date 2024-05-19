@@ -22,14 +22,16 @@ class Card extends Component
     private bool $isHidden;
     private string $cardDeck;
     private string $cardPosition;
+    private string $cardIndex;
 
-    public function __construct($number, $typeName, $isHidden, $cardDeck, $cardPosition)
+    public function __construct($number, $typeName, $isHidden, $cardDeck, $cardPosition, $cardIndex)
     {
         $this->number = $number;
         $this->typeName = $typeName;
         $this->isHidden = $isHidden;
         $this->cardDeck = $cardDeck;
         $this->cardPosition = $cardPosition;
+        $this->cardIndex = $cardIndex;
     }
 
     public function render(): View|Closure|string
@@ -39,6 +41,7 @@ class Card extends Component
         $isHidden = $this->isHidden;
         $cardDeck = $this->cardDeck;
         $cardPosition = $this->cardPosition;
+        $cardIndex = $this->cardIndex;
 
         if (!$isHidden){
             $number = $this->number;
@@ -59,6 +62,6 @@ class Card extends Component
             }
         }
 
-        return view('components.card', compact('number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition'));
+        return view('components.card', compact('number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition', 'cardIndex'));
     }
 }
