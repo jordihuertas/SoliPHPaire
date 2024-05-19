@@ -1,4 +1,6 @@
-<div class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto">
+<div class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto"
+    @if(!$isHidden) draggable=true @endif
+    >
     @if(!$isHidden)
         <i class="icon bi bi-suit-{{ $typeName }}-fill float-end"></i>
     @endif

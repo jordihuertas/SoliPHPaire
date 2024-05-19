@@ -79,12 +79,22 @@
         .icon
             color: #efefef
 
-    $height: 139px
-    // Deck cards position
-    @mixin card-index($index)
-        &.card-index-#{$index}
-            position: relative
-            top: calc(#{-$height} * $index + #{$index} * 10px - 10px)
+// Deck cards position
+$height: 139px
 
-    @for $i from 0 through 12
-        @include card-index($i)
+//Main deck
+.main-decks
+    .poker-card
+        position: relative
+        top: #{-$height}
+
+//Other decks
+.other-decks
+    .poker-card
+        @mixin card-index($index)
+            &.card-index-#{$index}
+                position: relative
+                top: calc(#{-$height} * $index + #{$index} * 10px - 10px)
+
+        @for $i from 0 through 12
+            @include card-index($i)
