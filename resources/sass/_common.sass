@@ -38,15 +38,33 @@
     &:hover
         // hover fx
 
+    &--top, &--bottom
+        pointer-events: none
+        padding: 0
+
     .icon
         pointer-events: none
-        font-size: 20px
-        text-align-last: right
-        padding: 6px 5px 0 0
+        font-size: 15px
+        padding: 2px 2px 0 0
+
+    .icon-number
+        transform: rotate(-180deg)
+        font-size: 15px
+        padding: 0 0 0 2px
+
+    &--bottom
+        .text-start, .text-end
+            transform: rotate(180deg)
+
+        .icon
+            padding: 0 0 2px 2px
+
+        .icon-number
+            padding: 0 2px 0 0
 
     &--number
         pointer-events: none
-        font-size: 50px
+        font-size: 60px
         font-weight: bold
 
     .gradient-text
@@ -67,25 +85,29 @@
     &--heart
         .gradient-text
             background-image: linear-gradient(0deg, #cE6f71, #cE0003)
-        .icon
+        .icon, .icon-number
+            font-weight: bold
             color: #CE0003
 
     &--diamond
         .gradient-text
             background-image: linear-gradient(0deg, #cE6f71, #cE0003)
-        .icon
+        .icon, .icon-number
+            font-weight: bold
             color: #CE0003
 
     &--club
         .gradient-text
             background-image: linear-gradient(0deg, #858585, #efefef)
-        .icon
+        .icon, .icon-number
+            font-weight: bold
             color: #efefef
 
     &--spade
         .gradient-text
             background-image: linear-gradient(0deg, #858585, #efefef)
-        .icon
+        .icon, .icon-number
+            font-weight: bold
             color: #efefef
 
 // Deck cards position
