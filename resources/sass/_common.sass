@@ -105,5 +105,5 @@ $height: 139px
                 position: relative
                 top: calc(#{-$height} * $index + #{$index} * 20px - 20px)
 
-        @for $i from 0 through 12
+        @for $i from 0 through 18 // Maximum stacked cards in a deck (19)
             @include card-index($i)
