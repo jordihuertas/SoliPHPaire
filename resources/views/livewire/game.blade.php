@@ -90,5 +90,9 @@
             </div>
         </div>
     </div>
+
+    @push("custom-scripts")
+        @vite('resources/js/game.js')
+    @endpush
 </div>
 

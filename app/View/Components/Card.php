@@ -48,6 +48,9 @@ class Card extends Component
             $typeName = $this->typeName;
 
             switch ($number){
+                case '1':
+                    $number = 'A';
+                    break;
                 case '11':
                     $number = 'J';
                     break;

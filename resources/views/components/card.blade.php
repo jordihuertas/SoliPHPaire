@@ -1,5 +1,5 @@
-<div class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto"
-    @if(!$isHidden) draggable=true @endif
+<div class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto" card-index="{{ $cardIndex }}"
+    @if(!$isHidden) draggable=true drag-item drop-item @endif
     >
     @if(!$isHidden)
         <i class="icon bi bi-suit-{{ $typeName }}-fill float-end"></i>

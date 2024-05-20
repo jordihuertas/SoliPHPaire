@@ -16,7 +16,7 @@
     background-color: transparent
     color: #313149
     padding: 10px
-    border: 1px solid #222222
+    border: 2px solid #222222
     user-select: none
 
 /* Cards */
@@ -26,22 +26,31 @@
     background-color: #0C0C0C
     color: #313149
     padding: 10px
-    border: 1px solid #222222
+    border: 2px solid #222222
     user-select: none
+
+    &--selected
+        border: 2px solid cyan
+
+    &--hover-drop
+        border: 2px solid yellow
 
     &:hover
         // hover fx
 
     .icon
+        pointer-events: none
         font-size: 20px
         text-align-last: right
         padding: 6px 5px 0 0
 
     &--number
+        pointer-events: none
         font-size: 50px
         font-weight: bold
 
     .gradient-text
+        pointer-events: none
         background-color: transparent
         background-size: 100%
         background-repeat: repeat
@@ -94,7 +103,7 @@ $height: 139px
         @mixin card-index($index)
             &.card-index-#{$index}
                 position: relative
-                top: calc(#{-$height} * $index + #{$index} * 10px - 10px)
+                top: calc(#{-$height} * $index + #{$index} * 20px - 20px)
 
         @for $i from 0 through 12
             @include card-index($i)
