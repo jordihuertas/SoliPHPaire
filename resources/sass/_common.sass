@@ -1,5 +1,9 @@
 .bg-dark
-    background-color: #101010 !important
+    //background-color: #101010 !important
+    //background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAE9JREFUKFNjdG5I/M/AwMDw6ekbEMXAJy0CptH5jCCFyIK42Iymqb5gE0EmwRSBjUQTAytEVoTNapABGFbDTEN3J/EKibaaaM8QHTzEBjgAWRlcdRNqiBAAAAAASUVORK5CYII='), repeat
+    background-color: #35654d
+    //background-image: url("https://www.transparenttextures.com/patterns/45-degree-fabric-dark.png")
+    /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 
 /* Helpers */
 .vh-100
@@ -21,6 +25,7 @@
 
 /* Cards */
 .poker-card
+    height: 138px
     width: 100px
     border-radius: 5px
     background-color: #0C0C0C
@@ -87,40 +92,45 @@
             background-image: linear-gradient(0deg, #cE6f71, #cE0003)
         .icon, .icon-number
             font-weight: bold
-            color: #CE0003
+            color: #cE6f71
 
     &--diamond
         .gradient-text
             background-image: linear-gradient(0deg, #cE6f71, #cE0003)
         .icon, .icon-number
             font-weight: bold
-            color: #CE0003
+            color: #cE6f71
 
     &--club
         .gradient-text
             background-image: linear-gradient(0deg, #858585, #efefef)
         .icon, .icon-number
             font-weight: bold
-            color: #efefef
+            color: #858585
 
     &--spade
         .gradient-text
             background-image: linear-gradient(0deg, #858585, #efefef)
         .icon, .icon-number
             font-weight: bold
-            color: #efefef
+            color: #858585
 
 // Deck cards position
-$height: 139px
+$height: 138px
 
 //Main deck
 .main-decks
+    margin: 0
+    height: 40vh
     .poker-card
         position: relative
         top: #{-$height}
+        margin-bottom: #{-$height}
 
 //Other decks
 .other-decks
+    margin: 0
+    height: 40vh
     .poker-card
         @mixin card-index($index)
             &.card-index-#{$index}

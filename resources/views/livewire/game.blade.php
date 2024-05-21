@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="container main-decks pt-5 mt-5">
+    <div class="container main-decks">
         <div class="row ">
             <div class="col-1">
                 <x-card-slot/>
@@ -22,21 +22,21 @@
             <div class="col-1">
                 <x-card-slot/>
             </div>
-            <div class="col-1 offset-1">
+            <div class="col-1 offset-1 pile-deck h-0">
                 <x-card-slot/>
             </div>
-            <div class="col-1">
+            <div class="col-1 pile-deck">
                 <x-card-slot/>
             </div>
-            <div class="col-1">
+            <div class="col-1 pile-deck">
                 <x-card-slot/>
             </div>
-            <div class="col-1">
+            <div class="col-1 pile-deck">
                 <x-card-slot/>
             </div>
         </div>
     </div>
-    <div class="container other-decks pt-5 mt-5">
+    <div class="container other-decks">
         <div class="row">
             <div class="col-1">
                 <x-card-slot/>
