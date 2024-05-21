@@ -30,7 +30,9 @@ draggableCards.forEach(item => {
 
 droppableSlots.forEach(item => {
     item.addEventListener('drop', e => {
-        console.log(draggingElement);
+        // If same card, return
+        if (e.currentTarget === draggingElement)
+            return;
 
         // Dragging card index
         let draggingCardIndex = draggingElement.getAttribute('card-index');
@@ -55,7 +57,10 @@ droppableSlots.forEach(item => {
 
     item.addEventListener('dragenter', e => {
         console.log('Enter');
-        e.currentTarget.classList.add('poker-card--hover-drop');
+        // If not the same dragging card, add hover drop fx
+        if (e.currentTarget !== draggingElement){
+            e.currentTarget.classList.add('poker-card--hover-drop');
+        }
         e.preventDefault();
     });
 
