@@ -103,6 +103,9 @@ function StartDragAndDrop() {
                     nextDraggingElements.forEach((sibling, index) => {
                         sibling.removeAttribute('style');
                         originalPosition.appendChild(sibling);
+                        if (index-1 === nextDraggingElements.length){
+                            sibling.setAttribute('drop-item', 'true');
+                        }
                     });
                 }
                 ResetDragAndDrop();
@@ -134,6 +137,10 @@ function StartDragAndDrop() {
                     sibling.classList.add('card-index-'+nextCardIndex);
                     sibling.setAttribute('card-index', nextCardIndex);
                     sibling.removeAttribute('style');
+                    console.log(index+1, nextDraggingElements.length);
+                    if (index+1 === nextDraggingElements.length){
+                        sibling.setAttribute('drop-item', 'true');
+                    }
                 });
             }
             draggingElement = null;
