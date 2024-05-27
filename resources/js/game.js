@@ -25,12 +25,24 @@ function StartDragAndDrop() {
     draggableCards.forEach((item, i) => {
         const handleMouseOver = e => {
             e.target.classList.add('poker-card--selected');
+            let nextDraggingElements = getNextSiblings(e.target, '.poker-card');
+            if (nextDraggingElements.length > 0){
+                nextDraggingElements.forEach((sibling, index) => {
+                    sibling.classList.add('poker-card--selected__stack');
+                });
+            }
         };
         evLsDraggable_mouseOver[i] = handleMouseOver;
         item.addEventListener('mouseover', handleMouseOver);
 
         const handleMouseLeave = e => {
             e.target.classList.remove('poker-card--selected');
+            let nextDraggingElements = getNextSiblings(e.target, '.poker-card');
+            if (nextDraggingElements.length > 0){
+                nextDraggingElements.forEach((sibling, index) => {
+                    sibling.classList.remove('poker-card--selected__stack');
+                });
+            }
         };
         evLsDraggable_mouseLeave[i] = handleMouseLeave;
         item.addEventListener('mouseleave', handleMouseLeave);
@@ -39,6 +51,7 @@ function StartDragAndDrop() {
             e.preventDefault();
             draggingElement = e.target;
             item.removeEventListener('mouseover', evLsDraggable_mouseOver[i]);
+            item.removeEventListener('mouseleave', evLsDraggable_mouseLeave[i]);
 
             //Get prev dragging el
             prevDraggingElement = e.target.previousElementSibling;
@@ -54,6 +67,7 @@ function StartDragAndDrop() {
             draggingElement.style.position = 'fixed';
             draggingElement.style.left = `${e.clientX - offsetX}px`;
             draggingElement.style.top = `${e.clientY - offsetY}px`;
+            draggingElement.removeAttribute('drop-item');
 
             if (nextDraggingElements.length > 0){
                 nextDraggingElements.forEach((sibling, index) => {
@@ -108,6 +122,9 @@ function StartDragAndDrop() {
                         }
                     });
                 }
+                else{
+                    draggingElement.setAttribute('drop-item', 'true');
+                }
                 ResetDragAndDrop();
                 return;
             }
@@ -143,6 +160,9 @@ function StartDragAndDrop() {
                     }
                 });
             }
+            else{
+                draggingElement.setAttribute('drop-item', 'true');
+            }
             draggingElement = null;
             target.removeAttribute('drop-item');
             if (prevDraggingElement !== null){
@@ -163,6 +183,7 @@ function StartDragAndDrop() {
         let closestSlot = null;
         let minDistance = Infinity;
 
+        droppableSlots = document.querySelectorAll('[drop-item]');
         droppableSlots.forEach(slot => {
             if (slot !== draggingElement && slot.hasAttribute('drop-item')) {
                 const slotRect = slot.getBoundingClientRect();
