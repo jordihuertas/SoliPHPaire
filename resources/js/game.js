@@ -38,6 +38,7 @@ function StartDragAndDrop() {
         const handleMouseDown = e => {
             e.preventDefault();
             draggingElement = e.target;
+            item.removeEventListener('mouseover', evLsDraggable_mouseOver[i]);
 
             //Get prev dragging el
             prevDraggingElement = e.target.previousElementSibling;
@@ -58,8 +59,9 @@ function StartDragAndDrop() {
                 nextDraggingElements.forEach((sibling, index) => {
                     sibling.style.position = 'fixed';
                     sibling.style.left = `${e.clientX - offsetX}px`;
-                    sibling.style.top = `${e.clientY - offsetY + (+20)}px`;
-                    sibling.style.zIndex = index.toString() + 9999;
+                    sibling.style.top = `${e.clientY - offsetY + ((index+1) * 20)}px`;
+                    sibling.style.zIndex = (index + 1).toString();
+                    sibling.removeAttribute('drop-item');
                 });
             }
 
@@ -80,8 +82,8 @@ function StartDragAndDrop() {
                 nextDraggingElements.forEach((sibling, index) => {
                     sibling.style.position = 'fixed';
                     sibling.style.left = `${e.clientX - offsetX}px`;
-                    sibling.style.top = `${e.clientY - offsetY + (+20 * (index+1))}px`;
-                    sibling.style.zIndex = index.toString() + 1;
+                    sibling.style.top = `${e.clientY - offsetY + ((index+1) * 20)}px`;
+                    sibling.style.zIndex = (index + 1).toString();
                 });
             }
 
@@ -93,9 +95,17 @@ function StartDragAndDrop() {
         if (draggingElement) {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
+
             if (target == null) {
                 originalPosition.appendChild(draggingElement);
                 draggingElement.removeAttribute('style');
+                if (nextDraggingElements.length > 0){
+                    nextDraggingElements.forEach((sibling, index) => {
+                        sibling.removeAttribute('style');
+                        originalPosition.appendChild(sibling);
+                    });
+                }
+                ResetDragAndDrop();
                 return;
             }
 
@@ -104,12 +114,28 @@ function StartDragAndDrop() {
                 targetCardIndex = 0;
             }
             let nextCardIndex = parseInt(targetCardIndex) + 1;
+
             target.after(draggingElement);
+            let lastElementAppended = draggingElement;
+
             let draggingElementCardIndex = draggingElement.getAttribute('card-index');
             draggingElement.classList.remove('card-index-'+draggingElementCardIndex);
             draggingElement.classList.add('card-index-'+nextCardIndex);
             draggingElement.setAttribute('card-index', nextCardIndex);
             draggingElement.removeAttribute('style');
+
+            if (nextDraggingElements.length > 0){
+                nextDraggingElements.forEach((sibling, index) => {
+                    lastElementAppended.after(sibling);
+                    lastElementAppended = sibling;
+                    nextCardIndex++;
+                    let siblingCardIndex = sibling.getAttribute('card-index');
+                    sibling.classList.remove('card-index-'+siblingCardIndex);
+                    sibling.classList.add('card-index-'+nextCardIndex);
+                    sibling.setAttribute('card-index', nextCardIndex);
+                    sibling.removeAttribute('style');
+                });
+            }
             draggingElement = null;
             target.removeAttribute('drop-item');
             if (prevDraggingElement !== null){
