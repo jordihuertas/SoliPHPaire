@@ -8,19 +8,18 @@ use Illuminate\View\Component;
 
 class CardSlot extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
+    private bool $droppable;
+
+    public function __construct($droppable)
     {
-        //
+        $this->droppable = $droppable;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
-        return view('components.card-slot');
+        $droppable = $this->droppable;
+        dump($droppable);
+
+        return view('components.card-slot', compact(['droppable']));
     }
 }

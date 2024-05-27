@@ -1,139 +1,201 @@
 let draggableCards;
 let droppableSlots;
 
-let evLsDraggable_start = [];
-let evLsDraggable_enter = [];
-let evLsDraggable_over = [];
-let evLsDraggable_end = [];
-let evLsDroppable_drop = [];
-let evLsDroppable_enter = [];
-let evLsDroppable_over = [];
-let evLsDroppable_leave = [];
+
+let target = null;
+
+let evLsDraggable_mouseOver = [];
+let evLsDraggable_mouseLeave = [];
+let evLsDraggable_mouseDown = [];
 
 StartDragAndDrop();
 
-function StartDragAndDrop(){
+function StartDragAndDrop() {
     draggableCards = document.querySelectorAll('[drag-item]');
     droppableSlots = document.querySelectorAll('[drop-item]');
 
     let draggingElement = null;
+    let draggingElements = [];
+    let prevDraggingElement = null;
+    let nextDraggingElements = [];
+    let offsetX = 0;
+    let offsetY = 0;
+    let originalPosition = null;
 
-    // DRAGGABLE CARDS
     draggableCards.forEach((item, i) => {
-        // DRAG START
-        const handleDragStart = e => {
-            // e.currentTarget.setAttribute('dragging', true);
-            e.currentTarget.classList.add('poker-card--selected');
-            draggingElement = e.currentTarget;
+        const handleMouseOver = e => {
+            e.target.classList.add('poker-card--selected');
         };
-        evLsDraggable_start[i] = handleDragStart;
-        item.addEventListener('dragstart', handleDragStart);
+        evLsDraggable_mouseOver[i] = handleMouseOver;
+        item.addEventListener('mouseover', handleMouseOver);
 
-        // DRAG ENTER
-        const handleDragEnter = e => {
+        const handleMouseLeave = e => {
+            e.target.classList.remove('poker-card--selected');
+        };
+        evLsDraggable_mouseLeave[i] = handleMouseLeave;
+        item.addEventListener('mouseleave', handleMouseLeave);
+
+        const handleMouseDown = e => {
             e.preventDefault();
-        };
-        evLsDraggable_enter[i] = handleDragEnter;
-        item.addEventListener('dragenter', handleDragEnter);
+            draggingElement = e.target;
 
-        // DRAG OVER
-        const handleDragOver = e => {
-            e.preventDefault();
-        };
-        evLsDraggable_over[i] = handleDragOver;
-        item.addEventListener('dragover', handleDragOver);
+            //Get prev dragging el
+            prevDraggingElement = e.target.previousElementSibling;
 
-        // DRAG END
-        const handleDragEnd = e => {
-            e.currentTarget.classList.remove('poker-card--selected');
+            // nextDraggingElements = getNextSiblings(draggingElement)
+            nextDraggingElements = getNextSiblings(draggingElement, '.poker-card');
+
+            offsetX = e.clientX - draggingElement.getBoundingClientRect().left;
+            offsetY = e.clientY - draggingElement.getBoundingClientRect().top;
+            originalPosition = draggingElement.parentNode; // Guarda la posición original
+            document.querySelector('#game_container').after(draggingElement);
+
+            draggingElement.style.position = 'fixed';
+            draggingElement.style.left = `${e.clientX - offsetX}px`;
+            draggingElement.style.top = `${e.clientY - offsetY}px`;
+
+            if (nextDraggingElements.length > 0){
+                nextDraggingElements.forEach((sibling, index) => {
+                    sibling.style.position = 'fixed';
+                    sibling.style.left = `${e.clientX - offsetX}px`;
+                    sibling.style.top = `${e.clientY - offsetY + (+20)}px`;
+                    sibling.style.zIndex = index.toString() + 9999;
+                });
+            }
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
         };
-        evLsDraggable_end[i] = handleDragEnd;
-        item.addEventListener('dragend', handleDragEnd);
+        evLsDraggable_mouseDown[i] = handleMouseDown;
+        item.addEventListener('mousedown', handleMouseDown);
     });
 
-    // DROPPABLE SLOTS
-    droppableSlots.forEach((item, i) => {
-        // DRAG DROP
-        const handleDrop = e => {
-            // Prevent drop if same card
-            if (e.currentTarget === draggingElement)
+    const handleMouseMove = e => {
+        if (draggingElement) {
+            draggingElement.style.position = 'fixed';
+            draggingElement.style.left = `${e.clientX - offsetX}px`;
+            draggingElement.style.top = `${e.clientY - offsetY}px`;
+
+            if (nextDraggingElements.length > 0){
+                nextDraggingElements.forEach((sibling, index) => {
+                    sibling.style.position = 'fixed';
+                    sibling.style.left = `${e.clientX - offsetX}px`;
+                    sibling.style.top = `${e.clientY - offsetY + (+20 * (index+1))}px`;
+                    sibling.style.zIndex = index.toString() + 1;
+                });
+            }
+
+            checkCollision();
+        }
+    };
+
+    const handleMouseUp = () => {
+        if (draggingElement) {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            if (target == null) {
+                originalPosition.appendChild(draggingElement);
+                draggingElement.removeAttribute('style');
                 return;
-
-            // Get dragging card index
-            let draggingCardIndex = draggingElement.getAttribute('card-index');
-
-            // Get dropping slot index
-            let cardIndex = e.currentTarget.getAttribute('card-index');
-            if (cardIndex == null) // If is null it is a slot, so the card index should be 1
-                cardIndex = 1;
-            else
-                cardIndex++; // Increment the card index to apply the correct class style
-
-            if (cardIndex >= 1){
-                let previousSibling = draggingElement.previousElementSibling;
-                previousSibling.setAttribute('drop-item', "true");
             }
 
-            // Update dragging element index
-            draggingElement.classList.remove('card-index-'+draggingCardIndex);
-            draggingElement.classList.add('card-index-'+cardIndex);
-            draggingElement.setAttribute('card-index', cardIndex);
+            let targetCardIndex= target.getAttribute('card-index');
+            if (targetCardIndex === null ){
+                targetCardIndex = 0;
+            }
+            let nextCardIndex = parseInt(targetCardIndex) + 1;
+            target.after(draggingElement);
+            let draggingElementCardIndex = draggingElement.getAttribute('card-index');
+            draggingElement.classList.remove('card-index-'+draggingElementCardIndex);
+            draggingElement.classList.add('card-index-'+nextCardIndex);
+            draggingElement.setAttribute('card-index', nextCardIndex);
+            draggingElement.removeAttribute('style');
+            draggingElement = null;
+            target.removeAttribute('drop-item');
+            if (prevDraggingElement !== null){
+                prevDraggingElement.setAttribute('drop-item', 'true');
+            }
+            droppableSlots.forEach(slot => {
+                slot.classList.remove('poker-card--selected');
+            });
 
-            // Update dragging element dom
-            e.currentTarget.after(draggingElement);
-            e.currentTarget.classList.remove('poker-card--hover-drop');
-
-            // Remove drop-item from dropped slot to prevent others drop here
-            e.currentTarget.removeAttribute('drop-item');
-
-            // Resets drag and drop
             ResetDragAndDrop();
-        };
-        evLsDroppable_drop[i] = handleDrop;
-        item.addEventListener('drop', handleDrop);
+        }
+    };
 
-        // DRAG ENTER
-        const handleDragEnter = e => {
-            console.log('Enter');
-            if (e.currentTarget !== draggingElement){
-                e.currentTarget.classList.add('poker-card--hover-drop');
+    const checkCollision = () => {
+        if (!draggingElement) return;
+
+        const draggingRect = draggingElement.getBoundingClientRect();
+        let closestSlot = null;
+        let minDistance = Infinity;
+
+        droppableSlots.forEach(slot => {
+            if (slot !== draggingElement && slot.hasAttribute('drop-item')) {
+                const slotRect = slot.getBoundingClientRect();
+                if (
+                    draggingRect.left < slotRect.right &&
+                    draggingRect.right > slotRect.left &&
+                    draggingRect.top < slotRect.bottom &&
+                    draggingRect.bottom > slotRect.top
+                ) {
+                    const slotCenterX = slotRect.left + slotRect.width / 2;
+                    const slotCenterY = slotRect.top + slotRect.height / 2;
+                    const draggingCenterX = draggingRect.left + draggingRect.width / 2;
+                    const draggingCenterY = draggingRect.top + draggingRect.height / 2;
+                    const distance = Math.sqrt(
+                        Math.pow(draggingCenterX - slotCenterX, 2) +
+                        Math.pow(draggingCenterY - slotCenterY, 2)
+                    );
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestSlot = slot;
+                    }
+                }
             }
-            e.preventDefault();
-        };
-        evLsDroppable_enter[i] = handleDragEnter;
-        item.addEventListener('dragenter', handleDragEnter);
+        });
 
-        // DRAG OVER
-        const handleDragOver = e => {
-            e.preventDefault();
-        };
-        evLsDroppable_over[i] = handleDragOver;
-        item.addEventListener('dragover', handleDragOver);
+        droppableSlots.forEach(slot => {
+            slot.classList.remove('poker-card--selected');
+        });
 
-        // DRAG LEAVE
-        const handleDragLeave = e => {
-            e.currentTarget.classList.remove('poker-card--hover-drop');
-            console.log('Leave');
-        };
-        evLsDroppable_leave[i] = handleDragLeave;
-        item.addEventListener('dragleave', handleDragLeave);
-    });
+        if (closestSlot) {
+            closestSlot.classList.add('poker-card--selected');
+            // console.log('Closest slot:', closestSlot);
+            target = closestSlot;
+        } else {
+            target = null;
+        }
+    };
 }
 
 function ResetDragAndDrop(){
     draggableCards.forEach((item, i) => {
-        item.removeEventListener('dragstart', evLsDraggable_start[i]);
-        item.removeEventListener('dragenter', evLsDraggable_enter[i]);
-        item.removeEventListener('dragover', evLsDraggable_over[i]);
-        item.removeEventListener('dragend', evLsDraggable_end[i]);
-    });
-
-    droppableSlots.forEach((item, i) => {
-        item.removeEventListener('drop', evLsDroppable_drop[i]);
-        item.removeEventListener('dragenter', evLsDroppable_enter[i]);
-        item.removeEventListener('dragover', evLsDroppable_over[i]);
-        item.removeEventListener('dragleave', evLsDroppable_leave[i]);
+        item.removeEventListener('mouseover', evLsDraggable_mouseOver[i]);
+        item.removeEventListener('mouseleave', evLsDraggable_mouseLeave[i]);
+        item.removeEventListener('mousedown', evLsDraggable_mouseDown[i]);
     });
 
     StartDragAndDrop();
+}
+
+function matches(elem, filter) {
+    if (elem && elem.nodeType === 1) {
+        if (filter) {
+            return elem.matches(filter);
+        }
+        return true;
+    }
+    return false;
+}
+
+function getNextSiblings(element, filter) {
+    let siblings = [];
+    while (element = element.nextSibling) {
+        if (matches(element, filter)) {
+            siblings.push(element);
+        }
+    }
+    return siblings;
 }

@@ -1,4 +1,4 @@
-<div>
+<div id="game_container">
     <div class="container">
         <div class="row">
             <div class="col">
@@ -12,7 +12,7 @@
     <div class="container main-decks">
         <div class="row ">
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @php
                     $card = last($cards->main_deck);
                     $index = array_key_last($cards->main_deck);
@@ -20,61 +20,61 @@
                 <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
             </div>
             <div class="col-1 offset-1 pile-deck h-0">
-                <x-card-slot/>
+                <x-card-slot :droppable="true"/>
             </div>
             <div class="col-1 pile-deck">
-                <x-card-slot/>
+                <x-card-slot :droppable="true"/>
             </div>
             <div class="col-1 pile-deck">
-                <x-card-slot/>
+                <x-card-slot :droppable="true"/>
             </div>
             <div class="col-1 pile-deck">
-                <x-card-slot/>
+                <x-card-slot :droppable="true"/>
             </div>
         </div>
     </div>
     <div class="container other-decks">
         <div class="row">
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[1] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
                 @endforeach
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[2] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
                 @endforeach
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[3] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
                 @endforeach
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[4] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
                 @endforeach
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[5] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
                 @endforeach
             </div>
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[6] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
@@ -82,7 +82,7 @@
             </div>
             {{-- DECK 7--}}
             <div class="col-1">
-                <x-card-slot/>
+                <x-card-slot :droppable="false"/>
                 @foreach($cards->decks[7] as $card)
                     @php $index = $loop->index + 1 @endphp
                     <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
