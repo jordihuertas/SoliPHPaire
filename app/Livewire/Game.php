@@ -7,17 +7,18 @@ use Livewire\Component;
 
 class Game extends Component
 {
-    public function render()
+    public $cards;
+    public function render(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Illuminate\Contracts\Foundation\Application
     {
         $card_controller = new CardsController();
         $cards = $card_controller->getAllCards();
 //        $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
 
         $decks = $this->mountDecks($cards);
-        $cards = $decks;
+        $this->cards = $decks;
 
 //        return view('game.index', compact('cards'));
-        return view('livewire.game', compact('cards'));
+        return view('livewire.game');
     }
 
     private function mountDecks($cards): \stdClass

@@ -18,7 +18,6 @@ class CardSlot extends Component
     public function render(): View|Closure|string
     {
         $droppable = $this->droppable;
-        dump($droppable);
 
         return view('components.card-slot', compact(['droppable']));
     }
