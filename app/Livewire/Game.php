@@ -64,7 +64,7 @@ class Game extends Component
         $cards = new \stdClass();
         $cards->main_deck = $main_deck;
         $cards->decks = $decks;
-        dump($cards);
+//        dump($cards);
         return $cards;
     }
 }

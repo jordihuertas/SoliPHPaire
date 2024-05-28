@@ -1,3 +1,6 @@
+*
+    user-select: none
+
 .bg-dark
     background-color: #101010 !important
     //background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAE9JREFUKFNjdG5I/M/AwMDw6ekbEMXAJy0CptH5jCCFyIK42Iymqb5gE0EmwRSBjUQTAytEVoTNapABGFbDTEN3J/EKibaaaM8QHTzEBjgAWRlcdRNqiBAAAAAASUVORK5CYII='), repeat
@@ -33,8 +36,11 @@
     padding: 10px
     border: 2px solid #222222
     user-select: none
+    transform: scale(1)
+    transition: transform .1s ease-in-out, border .5s ease-out
 
-    &--selected
+    &--dragging
+        transform: scale(1.05)
         border: 2px solid cyan
 
         &__stack
@@ -42,6 +48,21 @@
             border-left: 2px solid cyan
             border-right: 2px solid cyan
             border-bottom: 2px solid cyan
+
+    &--selected
+        border: 2px solid cyan
+        transition: border .05s ease-in
+
+        &__stack
+            border-top: 2px solid #222222
+            border-left: 2px solid cyan
+            border-right: 2px solid cyan
+            border-bottom: 2px solid cyan
+
+    &--animating
+        transition: top .1s ease-in-out, left .1s ease-in-out, border .5s ease-out
+        //transition: top 1s ease-in-out, left 1s ease-in-out, border .5s ease-out
+
 
     &--hover-drop
         border: 2px solid yellow
