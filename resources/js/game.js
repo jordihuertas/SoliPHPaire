@@ -1,205 +1,158 @@
-let draggableCards;
-let droppableSlots;
+class DragAndDrop {
+    constructor(draggableSelector, droppableSelector) {
+        this.draggableSelector = draggableSelector;
+        this.droppableSelector = droppableSelector;
+        this.draggingElement = null;
+        this.prevDraggingElement = null;
+        this.nextDraggingElements = [];
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.originalParentNode = null;
+        this.originalPosition = { top: 0, left: 0 };
+        this.target = null;
 
-let target = null;
-
-let evLsDraggable_mouseOver = [];
-let evLsDraggable_mouseLeave = [];
-let evLsDraggable_mouseDown = [];
-
-const cssClass_pokerCard = 'poker-card';
-const cssClass_pokerCardDragging = 'poker-card--dragging';
-const cssClass_pokerCardSelected = 'poker-card--selected';
-const cssClass_pokerCardSelectedStack = 'poker-card--selected__stack';
-const cssClass_pokerCardAnimating = 'poker-card--animating';
-
-const attr_dragItem = 'drag-item';
-const attr_dropItem = 'drop-item';
-
-StartDragAndDrop();
-
-function StartDragAndDrop() {
-    let draggingElement = null;
-    let prevDraggingElement = null;
-    let nextDraggingElements = [];
-    let offsetX = 0;
-    let offsetY = 0;
-    let originalParentNode = null;
-    let originalPosition = {
-        top: 0,
-        left : 0
-    };
-
-    draggableCards = document.querySelectorAll('['+attr_dragItem+']');
-    droppableSlots = document.querySelectorAll('['+attr_dropItem+']');
-
-    draggableCards.forEach((item, i) => {
-        const handleMouseOver = e => {
-            e.target.classList.add(cssClass_pokerCardSelected);
-            let nextDraggingElements = getNextSiblings(e.target, '.'+cssClass_pokerCard);
-            if (nextDraggingElements.length > 0){
-                nextDraggingElements.forEach((sibling, index) => {
-                    sibling.classList.add(cssClass_pokerCardSelectedStack);
-                });
-            }
+        this.cssClass = {
+            card: 'poker-card',
+            dragging: 'poker-card--dragging',
+            selected: 'poker-card--selected',
+            selectedStack: 'poker-card--selected__stack',
+            animating: 'poker-card--animating'
         };
-        evLsDraggable_mouseOver[i] = handleMouseOver;
-        item.addEventListener('mouseover', handleMouseOver);
 
-        const handleMouseLeave = e => {
-            // Remove card selected class
-            e.target.classList.remove(cssClass_pokerCardSelected);
-            let nextDraggingElements = getNextSiblings(e.target, '.'+cssClass_pokerCard);
-            // If is a card stack, remove the card stack selected class for each card
-            if (nextDraggingElements.length > 0){
-                nextDraggingElements.forEach((sibling, index) => {
-                    sibling.classList.remove(cssClass_pokerCardSelectedStack);
-                });
-            }
-        };
-        evLsDraggable_mouseLeave[i] = handleMouseLeave;
-        item.addEventListener('mouseleave', handleMouseLeave);
+        this.handleMouseOver = this.handleMouseOver.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
 
-        const handleMouseDown = e => {
-            e.preventDefault();
-            draggingElement = e.target;
+        this.init();
+    }
 
-            // Remove mouseover and mouseleave event listeners
-            item.removeEventListener('mouseover', evLsDraggable_mouseOver[i]);
-            item.removeEventListener('mouseleave', evLsDraggable_mouseLeave[i]);
+    init() {
+        this.draggableCards = document.querySelectorAll(this.draggableSelector);
+        this.droppableSlots = document.querySelectorAll(this.droppableSelector);
+        this.attachEventListeners();
+    }
 
-            // Get previous sibling of the dragging element
-            prevDraggingElement = e.target.previousElementSibling;
+    attachEventListeners() {
+        this.draggableCards.forEach((item) => {
+            item.addEventListener('mouseover', this.handleMouseOver);
+            item.addEventListener('mouseleave', this.handleMouseLeave);
+            item.addEventListener('mousedown', this.handleMouseDown);
+        });
+    }
 
-            // Get all next siblings of the dragging element
-            nextDraggingElements = getNextSiblings(draggingElement, '.'+cssClass_pokerCard);
+    removeEventListeners() {
+        this.draggableCards.forEach((item) => {
+            item.removeEventListener('mouseover', this.handleMouseOver);
+            item.removeEventListener('mouseleave', this.handleMouseLeave);
+            item.removeEventListener('mousedown', this.handleMouseDown);
+        });
+    }
 
-            // Get bounding
-            offsetX = e.clientX - draggingElement.getBoundingClientRect().left;
-            offsetY = e.clientY - draggingElement.getBoundingClientRect().top;
+    handleMouseOver(e) {
+        e.target.classList.add(this.cssClass.selected);
+        const nextSiblings = Utils.getNextSiblings(e.target, `.${this.cssClass.card}`);
+        nextSiblings.forEach(sibling => sibling.classList.add(this.cssClass.selectedStack));
+    }
 
-            // Save the original dragging element position.
-            // (In case the player drops the card on an invalid drop site, it should return to its original position).
-            originalParentNode = draggingElement.parentNode;
-            originalPosition.top = draggingElement.getBoundingClientRect().top;
-            originalPosition.left = draggingElement.getBoundingClientRect().left;
+    handleMouseLeave(e) {
+        e.target.classList.remove(this.cssClass.selected);
+        const nextSiblings = Utils.getNextSiblings(e.target, `.${this.cssClass.card}`);
+        nextSiblings.forEach(sibling => sibling.classList.remove(this.cssClass.selectedStack));
+    }
 
-            draggingElement.classList.remove(cssClass_pokerCardSelected);
-            draggingElement.classList.add(cssClass_pokerCardDragging);
-            nextDraggingElements.forEach((item, i) => {
-                item.classList.add(cssClass_pokerCardDragging);
-                item.classList.add(cssClass_pokerCardSelectedStack);
-            });
+    handleMouseDown(e) {
+        e.preventDefault();
+        this.draggingElement = e.target;
+        this.prevDraggingElement = e.target.previousElementSibling || null;
+        this.nextDraggingElements = Utils.getNextSiblings(this.draggingElement, `.${this.cssClass.card}`);
+        const rect = this.draggingElement.getBoundingClientRect();
+        this.offsetX = e.clientX - rect.left;
+        this.offsetY = e.clientY - rect.top;
+        this.originalParentNode = this.draggingElement.parentNode;
+        this.originalPosition = { top: rect.top, left: rect.left };
 
-            // Fix the dragging card and stacked cards position to bounding before mouse move
-            fixCardPositionToBounding(draggingElement, e, offsetX, offsetY, true);
-            fixStackedCardsPositionToBounding(nextDraggingElements, e, offsetX, offsetY, true);
+        this.draggingElement.classList.add(this.cssClass.dragging);
+        this.nextDraggingElements.forEach(sibling => sibling.classList.add(this.cssClass.dragging, this.cssClass.selectedStack));
 
-            // Add required event listeners to move and drop the cards
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
+        Utils.fixCardPosition(this.draggingElement, e, this.offsetX, this.offsetY);
+        Utils.fixStackedCardsPosition(this.nextDraggingElements, e, this.offsetX, this.offsetY);
 
-            // Move the dragging element to another container to avoid zIndex issues on hovering drop slots.
-            draggingElement.style.zIndex=1;
-            // document.querySelector('#game_container').after(draggingElement);
-        };
-        evLsDraggable_mouseDown[i] = handleMouseDown;
-        item.addEventListener('mousedown', handleMouseDown);
-    });
+        e.target.removeEventListener('mouseover', this.handleMouseOver);
+        e.target.removeEventListener('mouseleave', this.handleMouseLeave);
 
-    const handleMouseMove = e => {
-        if (draggingElement) {
-            // Fix the dragging card and stacked cards position to bounding while mouse move
-            fixCardPositionToBounding(draggingElement, e, offsetX, offsetY, false);
-            fixStackedCardsPositionToBounding(nextDraggingElements, e, offsetX, offsetY, false)
+        document.addEventListener('mousemove', this.handleMouseMove);
+        document.addEventListener('mouseup', this.handleMouseUp);
+    }
 
-            // Collision detection for droppable slots
-            checkCollision();
+    handleMouseMove(e) {
+        if (this.draggingElement) {
+            Utils.fixCardPosition(this.draggingElement, e, this.offsetX, this.offsetY);
+            Utils.fixStackedCardsPosition(this.nextDraggingElements, e, this.offsetX, this.offsetY);
+            this.checkCollision();
         }
-    };
+    }
 
-    const handleMouseUp = async () => {
-        if (draggingElement) {
-            // Remove unused event listeners for this card
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+    async handleMouseUp(e) {
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseup', this.handleMouseUp);
 
-            // If player mouse up on undroppable slot...
-            if (target == null) {
-                // Reset dragging element styles and position to its original
-                nextDraggingElements.unshift(draggingElement);
-                await moveElementsTo(nextDraggingElements, originalPosition);
-                nextDraggingElements.forEach((sibling, index) => {
-                    sibling.classList.remove(cssClass_pokerCardDragging);
+        if (this.draggingElement) {
+            if (!this.target) {
+                this.nextDraggingElements.unshift(this.draggingElement);
+                await Utils.moveElementsTo(this.nextDraggingElements, this.originalPosition);
+                this.nextDraggingElements.forEach(sibling => {
+                    sibling.classList.remove(this.cssClass.dragging);
                     sibling.removeAttribute('style');
-                    originalParentNode.appendChild(sibling);
-                    // Set the last element as droppable slot
-                    if ((index+1) === nextDraggingElements.length){
-                        sibling.setAttribute(attr_dropItem, 'true');
-                    }
+                    sibling.setAttribute('drop-item', 'true');
+                    this.originalParentNode.appendChild(sibling);
                 });
-
-                // Stop execution and reset drag and drop to restart all event listeners.
-                ResetDragAndDrop();
+                this.reset();
                 return;
             }
 
-            // If player mouse up on a droppable slot...
-            // Get droppable slot card index to calculate witch classes will have each card.
-            let targetCardIndex= target.getAttribute('card-index');
-            if (targetCardIndex === null ){
-                targetCardIndex = 0;
-            }
+            let targetCardIndex = this.target.getAttribute('card-index') || 0;
             let nextCardIndex = parseInt(targetCardIndex);
 
-            nextDraggingElements.unshift(draggingElement);
-            originalPosition.top = target.getBoundingClientRect().top + 20;
-            originalPosition.left = target.getBoundingClientRect().left;
-            await moveElementsTo(nextDraggingElements, originalPosition);
-            nextDraggingElements.forEach((sibling, index) => {
-                sibling.classList.remove(cssClass_pokerCardDragging);
+            this.nextDraggingElements.unshift(this.draggingElement);
+            const targetRect = this.target.getBoundingClientRect();
+            const toPosition = { top: targetRect.top + 20, left: targetRect.left };
+            await Utils.moveElementsTo(this.nextDraggingElements, toPosition);
+            this.nextDraggingElements.forEach((sibling, index) => {
+                const siblingCardIndex = sibling.getAttribute('card-index');
+                sibling.classList.remove('card-index-' + (siblingCardIndex));
+                sibling.classList.remove(this.cssClass.dragging);
                 sibling.removeAttribute('style');
-                target.parentNode.appendChild(sibling);
-                nextCardIndex++;
-                let siblingCardIndex = sibling.getAttribute('card-index');
-                sibling.classList.remove('card-index-'+siblingCardIndex);
-                sibling.classList.add('card-index-'+nextCardIndex);
+                this.target.parentNode.appendChild(sibling);
+                sibling.classList.add('card-index-' + (++nextCardIndex));
                 sibling.setAttribute('card-index', nextCardIndex);
-                sibling.removeAttribute('style');
-                // Set the last element as droppable slot
-                if ((index+1) === nextDraggingElements.length){
-                    sibling.setAttribute(attr_dropItem, 'true');
+                if (index + 1 === this.nextDraggingElements.length) {
+                    sibling.setAttribute('drop-item', 'true');
                 }
             });
 
-            // Remove droppable slot where the dragging card has been dropped on.
-            target.removeAttribute(attr_dropItem);
-            if (prevDraggingElement !== null){
-                prevDraggingElement.setAttribute(attr_dropItem, 'true');
+            this.target.removeAttribute('drop-item');
+            if (this.prevDraggingElement) {
+                this.prevDraggingElement.setAttribute('drop-item', 'true');
             }
 
-            // Remove selected classes of the droppable slots
-            droppableSlots.forEach(slot => {
-                slot.classList.remove(cssClass_pokerCardSelected);
-            });
+            this.droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
 
-            // SReset drag and drop to restart all event listeners.
-            ResetDragAndDrop();
+            this.reset();
         }
-    };
+    }
 
-    const checkCollision = () => {
-        if (!draggingElement) return;
+    checkCollision() {
+        if (!this.draggingElement) return;
 
-        const draggingRect = draggingElement.getBoundingClientRect();
+        const draggingRect = this.draggingElement.getBoundingClientRect();
         let closestSlot = null;
         let minDistance = Infinity;
 
-        // It is necessary to get all droppable slots again because they change on selecting cards
-        droppableSlots = document.querySelectorAll('['+attr_dropItem+']');
-
-        droppableSlots.forEach(slot => {
-            if (slot !== draggingElement && slot.hasAttribute(attr_dropItem)) {
+        this.droppableSlots = document.querySelectorAll(this.droppableSelector);
+        this.droppableSlots.forEach(slot => {
+            if (slot !== this.draggingElement && slot.hasAttribute('drop-item')) {
                 const slotRect = slot.getBoundingClientRect();
                 if (
                     draggingRect.left < slotRect.right &&
@@ -207,15 +160,7 @@ function StartDragAndDrop() {
                     draggingRect.top < slotRect.bottom &&
                     draggingRect.bottom > slotRect.top
                 ) {
-                    const slotCenterX = slotRect.left + slotRect.width / 2;
-                    const slotCenterY = slotRect.top + slotRect.height / 2;
-                    const draggingCenterX = draggingRect.left + draggingRect.width / 2;
-                    const draggingCenterY = draggingRect.top + draggingRect.height / 2;
-                    const distance = Math.sqrt(
-                        Math.pow(draggingCenterX - slotCenterX, 2) +
-                        Math.pow(draggingCenterY - slotCenterY, 2)
-                    );
-
+                    const distance = Utils.calculateDistance(draggingRect, slotRect);
                     if (distance < minDistance) {
                         minDistance = distance;
                         closestSlot = slot;
@@ -224,94 +169,81 @@ function StartDragAndDrop() {
             }
         });
 
-        droppableSlots.forEach(slot => {
-            slot.classList.remove(cssClass_pokerCardSelected);
-        });
+        this.droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
 
         if (closestSlot) {
-            closestSlot.classList.add(cssClass_pokerCardSelected);
-            target = closestSlot;
+            closestSlot.classList.add(this.cssClass.selected);
+            this.target = closestSlot;
         } else {
-            target = null;
-        }
-    };
-}
-
-function ResetDragAndDrop(){
-    draggableCards.forEach((item, i) => {
-        item.removeEventListener('mouseover', evLsDraggable_mouseOver[i]);
-        item.removeEventListener('mouseleave', evLsDraggable_mouseLeave[i]);
-        item.removeEventListener('mousedown', evLsDraggable_mouseDown[i]);
-    });
-
-    StartDragAndDrop();
-}
-
-function matches(elem, filter) {
-    if (elem && elem.nodeType === 1) {
-        if (filter) {
-            return elem.matches(filter);
-        }
-        return true;
-    }
-    return false;
-}
-
-function getNextSiblings(element, filter) {
-    let siblings = [];
-    while (element = element.nextSibling) {
-        if (matches(element, filter)) {
-            siblings.push(element);
+            this.target = null;
         }
     }
-    return siblings;
+
+    reset() {
+        this.draggingElement = null;
+        this.prevDraggingElement = null;
+        this.nextDraggingElements = [];
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.originalParentNode = null;
+        this.originalPosition = { top: 0, left: 0 };
+        this.target = null;
+
+        this.removeEventListeners();
+        this.init();
+    }
 }
 
-function fixCardPositionToBounding(draggingElement, event, offsetX, offsetY, removeDropItemAttr){
-    // Fix position
-    draggingElement.style.position = 'fixed';
-    draggingElement.style.left = `${event.clientX - offsetX}px`;
-    draggingElement.style.top = `${event.clientY - offsetY}px`;
-
-    if (!removeDropItemAttr) return;
-    // Removes drop-item attr to avoid collision itself.
-    draggingElement.removeAttribute(attr_dropItem);
-}
-
-function fixStackedCardsPositionToBounding(nextDraggingElements, event, offsetX, offsetY, removeDropItemAttr){
-    // Fix position
-    if (nextDraggingElements.length > 0){
-        nextDraggingElements.forEach((sibling, index) => {
-            sibling.style.position = 'fixed';
-            sibling.style.left = `${event.clientX - offsetX}px`;
-            sibling.style.top = `${event.clientY - offsetY + ((index+1) * 20)}px`;
-            sibling.style.zIndex = (index + 1).toString();
-
-            if (removeDropItemAttr){
-                // Removes drop-item attr to avoid collision with the dragging top card.
-                sibling.removeAttribute(attr_dropItem);
+class Utils {
+    static getNextSiblings(element, filter) {
+        let siblings = [];
+        while (element = element.nextSibling) {
+            if (element.matches && element.matches(filter)) {
+                siblings.push(element);
             }
+        }
+        return siblings;
+    }
+
+    static fixCardPosition(element, event, offsetX, offsetY) {
+        element.style.position = 'fixed';
+        element.style.left = `${event.clientX - offsetX}px`;
+        element.style.top = `${event.clientY - offsetY}px`;
+        element.style.zIndex = "1";
+        element.removeAttribute('drop-item');
+    }
+
+    static fixStackedCardsPosition(elements, event, offsetX, offsetY) {
+        elements.forEach((element, index) => {
+            element.style.position = 'fixed';
+            element.style.left = `${event.clientX - offsetX}px`;
+            element.style.top = `${event.clientY - offsetY + (index + 1) * 20}px`;
+            element.style.zIndex = (index + 1).toString();
+            element.removeAttribute('drop-item');
         });
     }
+
+    static calculateDistance(rect1, rect2) {
+        const center1 = { x: rect1.left + rect1.width / 2, y: rect1.top + rect1.height / 2 };
+        const center2 = { x: rect2.left + rect2.width / 2, y: rect2.top + rect2.height / 2 };
+        return Math.sqrt(Math.pow(center1.x - center2.x, 2) + Math.pow(center1.y - center2.y, 2));
+    }
+
+    static async moveElementsTo(elements, toPosition) {
+        elements.forEach((element, index) => {
+            const top = toPosition.top + 20 * index;
+            element.style.top = `${top}px`;
+            element.style.left = `${toPosition.left}px`;
+            element.classList.add('poker-card--animating');
+            element.classList.remove('poker-card--selected', 'poker-card--selected__stack');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        elements.forEach(element => element.classList.remove('poker-card--animating'));
+    }
 }
 
-const moveElementsTo = async (elements, toPosition) => {
-    elements.forEach((item, i) => {
-        const top = toPosition.top + 20 * (i);
-        item.style.top = `${top}px`;
-        item.style.left = `${toPosition.left}px`;
-        item.classList.remove(cssClass_pokerCardSelected);
-        item.classList.remove(cssClass_pokerCardSelectedStack);
-        item.classList.add(cssClass_pokerCardAnimating);
-    });
-
-    await sleep(100); //300
-
-    elements.forEach((item, i) => {
-        item.classList.remove(cssClass_pokerCardAnimating);
-    });
-}
-
-function sleep(time) {
-    return new Promise(resolve=>setTimeout(resolve, time));
-}
+document.addEventListener('DOMContentLoaded', () => {
+    new DragAndDrop('[drag-item]', '[drop-item]');
+});
