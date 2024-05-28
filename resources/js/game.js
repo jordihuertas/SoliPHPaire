@@ -66,6 +66,7 @@ class DragAndDrop {
         e.preventDefault();
         this.draggingElement = e.target;
         this.prevDraggingElement = e.target.previousElementSibling || null;
+        this.draggingElement.classList.remove(this.cssClass.selected);
         this.nextDraggingElements = Utils.getNextSiblings(this.draggingElement, `.${this.cssClass.card}`);
         const rect = this.draggingElement.getBoundingClientRect();
         this.offsetX = e.clientX - rect.left;
@@ -95,6 +96,7 @@ class DragAndDrop {
     }
 
     async handleMouseUp(e) {
+        // return;
         document.removeEventListener('mousemove', this.handleMouseMove);
         document.removeEventListener('mouseup', this.handleMouseUp);
 
@@ -103,7 +105,7 @@ class DragAndDrop {
                 this.nextDraggingElements.unshift(this.draggingElement);
                 await Utils.moveElementsTo(this.nextDraggingElements, this.originalPosition);
                 this.nextDraggingElements.forEach(sibling => {
-                    sibling.classList.remove(this.cssClass.dragging);
+                    // sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
                     sibling.removeAttribute('style');
                     sibling.setAttribute('drop-item', 'true');
                     this.originalParentNode.appendChild(sibling);
@@ -235,7 +237,8 @@ class Utils {
             element.style.top = `${top}px`;
             element.style.left = `${toPosition.left}px`;
             element.classList.add('poker-card--animating');
-            element.classList.remove('poker-card--selected', 'poker-card--selected__stack');
+            element.classList.remove('poker-card--dragging');
+            // element.classList.remove('poker-card--selected');
         });
 
         await new Promise(resolve => setTimeout(resolve, 100));
