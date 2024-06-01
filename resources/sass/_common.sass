@@ -41,14 +41,14 @@
 
     &--dragging
         transform: scale(1.05)
-        //border: 2px solid cyan
-        transition: transform .1s ease-in-out
+        border: 2px solid cyan
+        transition: transform .1s ease-in-out, border .1s ease-in
 
-        //&__stack
-        //    border-top: 2px solid #222222
-        //    border-left: 2px solid cyan
-        //    border-right: 2px solid cyan
-        //    border-bottom: 2px solid cyan
+        &__stack
+            border-top: 2px solid #222222
+            border-left: 2px solid cyan
+            border-right: 2px solid cyan
+            border-bottom: 2px solid cyan
 
     &--selected
         border: 2px solid cyan
@@ -61,7 +61,7 @@
             border-bottom: 2px solid cyan
 
     &--animating
-        transition: top .1s ease-in-out, left .1s ease-in-out
+        transition: top .1s ease-in-out, left .1s ease-in-out, border .1s ease-out
         //transition: top 1s ease-in-out, left 1s ease-in-out, border .5s ease-out
 
 
@@ -69,8 +69,7 @@
         border: 2px solid yellow
 
     &:hover
-        border: 2px solid cyan
-        transition: border .05s ease-in
+        // hover fx
 
     &--top, &--bottom
         pointer-events: none
