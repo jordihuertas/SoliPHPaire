@@ -128,6 +128,7 @@ class DragAndDrop {
             const toPosition = { top: targetRect.top + 20, left: targetRect.left };
             await Utils.moveElementsTo(this.nextDraggingElements, toPosition);
             this.nextDraggingElements.forEach((sibling, index) => {
+                sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
                 const siblingCardIndex = sibling.getAttribute('card-index');
                 sibling.classList.remove('card-index-' + (siblingCardIndex));
                 sibling.classList.remove(this.cssClass.dragging);
