@@ -91,8 +91,8 @@
         </div>
     </div>
 
-    @push("custom-scripts")
-        @vite('resources/js/game.js')
-    @endpush
+    @assets
+        @vite('resources/js/drag-and-drop.js')
+    @endassets
 </div>
 

@@ -7,7 +7,7 @@ export default defineConfig({
             input: [
                 'resources/sass/app.scss',
                 'resources/js/app.js',
-                'resources/js/game.js'
+                'resources/js/drag-and-drop.js'
             ],
             refresh: true,
         }),

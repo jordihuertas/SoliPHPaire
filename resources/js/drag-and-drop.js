@@ -42,7 +42,7 @@ class DragAndDrop {
         });
     }
 
-    removeEventListeners() {
+    removeAllEventListeners() {
         this.draggableCards.forEach((item) => {
             item.removeEventListener('mouseover', this.handleMouseOver);
             item.removeEventListener('mouseleave', this.handleMouseLeave);
@@ -83,6 +83,12 @@ class DragAndDrop {
         e.target.removeEventListener('mouseover', this.handleMouseOver);
         e.target.removeEventListener('mouseleave', this.handleMouseLeave);
 
+        this.nextDraggingElements.forEach((item) => {
+            item.removeEventListener('mouseover', this.handleMouseOver);
+            item.removeEventListener('mouseleave', this.handleMouseLeave);
+            item.removeEventListener('mousedown', this.handleMouseDown);
+        });
+
         document.addEventListener('mousemove', this.handleMouseMove);
         document.addEventListener('mouseup', this.handleMouseUp);
     }
@@ -105,7 +111,7 @@ class DragAndDrop {
                 this.nextDraggingElements.unshift(this.draggingElement);
                 await Utils.moveElementsTo(this.nextDraggingElements, this.originalPosition);
                 this.nextDraggingElements.forEach(sibling => {
-                    // sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
+                    sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
                     sibling.removeAttribute('style');
                     sibling.setAttribute('drop-item', 'true');
                     this.originalParentNode.appendChild(sibling);
@@ -191,7 +197,7 @@ class DragAndDrop {
         this.originalPosition = { top: 0, left: 0 };
         this.target = null;
 
-        this.removeEventListeners();
+        this.removeAllEventListeners();
         this.init();
     }
 }
@@ -238,7 +244,8 @@ class Utils {
             element.style.left = `${toPosition.left}px`;
             element.classList.add('poker-card--animating');
             element.classList.remove('poker-card--dragging');
-            // element.classList.remove('poker-card--selected');
+            element.classList.remove('poker-card--selected');
+            element.classList.remove('poker-card--selected__stack');
         });
 
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -247,6 +254,6 @@ class Utils {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('livewire:navigated', () => {
     new DragAndDrop('[drag-item]', '[drop-item]');
 });

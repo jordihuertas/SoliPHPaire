@@ -6,6 +6,7 @@
         <title>SoliPHPairE</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+        @livewireStyles
         @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     </head>
     <body class="d-flex vh-100 text-center text-white bg-dark">
@@ -23,6 +24,6 @@
                 <p>Made by Jordi Huertas (https://github.com/jordihuertas/SoliPHPaire)</p>
             </footer>
         </div>
-        @stack('custom-scripts')
+    @livewireScripts
     </body>
 </html>
