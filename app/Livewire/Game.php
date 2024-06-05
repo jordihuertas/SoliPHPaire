@@ -89,16 +89,33 @@ class Game extends Component
         return $cards;
     }
 
+    #[On('reset-main-deck')]
+    #[Renderless]
+    public function resetMainDeck(){
+        $this->cards->main_deck = array_reverse($this->cards->main_deck_shown);
+        $this->cards->main_deck_shown = [];
+        $this->dispatch('reset-main-deck-callback');
+    }
+
     #[On('main-deck-next-card')]
     #[Renderless]
     public function getNextCardFromMainDeck(): void
     {
         // Moves the main deck next card to the main deck shown cards
         $next_card = array_pop($this->cards->main_deck);
-        array_push($this->cards->main_deck_shown, $next_card);
+        $deck_is_empty = true;
+        $last_deck_card = false;
+
+        if (!is_null($next_card)) {
+            $deck_is_empty = false;
+            array_push($this->cards->main_deck_shown, $next_card);
+            if (count($this->cards->main_deck) == 0){
+                $last_deck_card = true;
+            }
+        }
 
         // Return next card to js event
-        $this->dispatch('main-deck-next-card-callback', ['card' => $next_card]);
+        $this->dispatch('main-deck-next-card-callback', ['card' => $next_card, 'last_deck_card' => $last_deck_card, 'deck_is_empty' => $deck_is_empty]);
     }
 
     #[On('build-card')]

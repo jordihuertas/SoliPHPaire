@@ -16,30 +16,57 @@ class GameController {
 
         const mainDeckNextCardCallback_cleanup = Livewire.on('main-deck-next-card-callback', (event) => {
             const data = event[0];
-            Utils.revealCard(this.mainDeckShown, data, this.dragAndDrop);
+            this.revealCard(data);
             mainDeckNextCardCallback_cleanup();
         });
     }
-}
 
-class Utils {
-    static revealCard(mainDeckShown, data, dragAndDrop){
+    revealCard(data){
+        if (data.deck_is_empty) {
+            this.resetMainDeck();
+            return;
+        }
+
         Livewire.dispatch('build-card', {card_data: data});
 
         const revealCardCallback_cleanup = Livewire.on('build-card-callback', (event) => {
             const cardHtml = event[0].card;
             const range = document.createRange();
             const cardNode = range.createContextualFragment(cardHtml).firstElementChild;
-            mainDeckShown.appendChild(cardNode);
-            // return event[0].card;
-            this.resetDragAndDrop(dragAndDrop);
+
+            if (data.last_deck_card){
+                this.mainDeck.querySelector('.poker-card').style.display = 'none';
+            }
+
+            this.mainDeckShown.appendChild(cardNode);
+
+            this.dragAndDrop.reset();
             revealCardCallback_cleanup();
         });
     }
 
-    static resetDragAndDrop(dragAndDrop){
-        dragAndDrop.reset();
+    resetMainDeck(){
+        Livewire.dispatch('reset-main-deck');
+        const resetMainDeckCallback_cleanup = Livewire.on('reset-main-deck-callback', (event) => {
+
+            const cards = this.mainDeckShown.querySelectorAll('.poker-card');
+            cards.forEach((card, index) => {
+                card.remove();
+            });
+            this.mainDeck.querySelector('.poker-card').removeAttribute('style');
+
+            this.resetDragAndDrop();
+            resetMainDeckCallback_cleanup();
+        });
     }
+
+    resetDragAndDrop(){
+        this.dragAndDrop.reset();
+    }
+}
+
+class Utils {
+
 }
 
 
