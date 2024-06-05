@@ -72,7 +72,6 @@ class Card extends Component
 
     #[Renderless]
     public static function buildCard($card_data){
-        $card_data = json_decode(json_encode($card_data), FALSE)->card;
         $card = new Card($card_data->number, $card_data->type->name, false, 1, $card_data->position, 0);
         return $card->render()->render();
     }

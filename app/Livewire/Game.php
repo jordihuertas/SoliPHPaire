@@ -105,22 +105,18 @@ class Game extends Component
         $next_card = array_pop($this->cards->main_deck);
         $deck_is_empty = true;
         $last_deck_card = false;
+        $card_html = null;
 
         if (!is_null($next_card)) {
             $deck_is_empty = false;
             array_push($this->cards->main_deck_shown, $next_card);
+            $card_html = Card::buildCard($next_card);
             if (count($this->cards->main_deck) == 0){
                 $last_deck_card = true;
             }
         }
 
         // Return next card to js event
-        $this->dispatch('main-deck-next-card-callback', ['card' => $next_card, 'last_deck_card' => $last_deck_card, 'deck_is_empty' => $deck_is_empty]);
-    }
-
-    #[On('build-card')]
-    #[Renderless]
-    public function buildCard($card_data){
-        $this->dispatch('build-card-callback', ['card' => Card::buildCard($card_data)]);
+        $this->dispatch('main-deck-next-card-callback', ['card' => $card_html, 'last_deck_card' => $last_deck_card, 'deck_is_empty' => $deck_is_empty]);
     }
 }

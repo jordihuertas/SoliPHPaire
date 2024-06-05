@@ -7,41 +7,31 @@ class GameController {
     }
 
     init() {
-        this.handleClick = this.handleClick.bind(this);
-        this.mainDeck.addEventListener('click', this.handleClick);
+        this.handleClickMainDeck = this.handleClickMainDeck.bind(this);
+        this.mainDeck.addEventListener('click', this.handleClickMainDeck);
     }
 
-    async handleClick(e) {
+    async handleClickMainDeck(e) {
         Livewire.dispatch('main-deck-next-card', { refreshPosts: true });
 
         const mainDeckNextCardCallback_cleanup = Livewire.on('main-deck-next-card-callback', (event) => {
             const data = event[0];
-            this.revealCard(data);
-            mainDeckNextCardCallback_cleanup();
-        });
-    }
 
-    revealCard(data){
-        if (data.deck_is_empty) {
-            this.resetMainDeck();
-            return;
-        }
-
-        Livewire.dispatch('build-card', {card_data: data});
-
-        const revealCardCallback_cleanup = Livewire.on('build-card-callback', (event) => {
-            const cardHtml = event[0].card;
-            const range = document.createRange();
-            const cardNode = range.createContextualFragment(cardHtml).firstElementChild;
-
-            if (data.last_deck_card){
-                this.mainDeck.querySelector('.poker-card').style.display = 'none';
+            if (data.deck_is_empty) {
+                this.resetMainDeck();
             }
+            else{
+                const cardNode = Utils.buildNodeFromHtml(event[0].card);
 
-            this.mainDeckShown.appendChild(cardNode);
+                if (data.last_deck_card){
+                    this.mainDeck.querySelector('.poker-card').style.display = 'none';
+                }
 
-            this.dragAndDrop.reset();
-            revealCardCallback_cleanup();
+                this.mainDeckShown.appendChild(cardNode);
+
+                this.dragAndDrop.reset();
+            }
+            mainDeckNextCardCallback_cleanup();
         });
     }
 
@@ -66,7 +56,10 @@ class GameController {
 }
 
 class Utils {
-
+    static buildNodeFromHtml(cardHtml){
+        const range = document.createRange();
+        return range.createContextualFragment(cardHtml).firstElementChild;
+    }
 }
 
 
