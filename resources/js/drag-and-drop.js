@@ -1,5 +1,5 @@
 class DragAndDrop {
-    constructor(draggableSelector, droppableSelector) {
+    constructor(draggableSelector, droppableSelector, onDropCallback) {
         this.draggableSelector = draggableSelector;
         this.droppableSelector = droppableSelector;
         this.draggingElement = null;
@@ -10,6 +10,8 @@ class DragAndDrop {
         this.originalParentNode = null;
         this.originalPosition = { top: 0, left: 0 };
         this.target = null;
+
+        this.onDropCallback = onDropCallback;
 
         this.cssClass = {
             card: 'poker-card',
@@ -147,6 +149,10 @@ class DragAndDrop {
             }
 
             this.droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
+
+            if (this.onDropCallback && typeof this.onDropCallback === 'function') {
+                this.onDropCallback(this.nextDraggingElements);
+            }
 
             this.reset();
         }
