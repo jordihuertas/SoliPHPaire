@@ -255,6 +255,4 @@ class Utils {
     }
 }
 
-document.addEventListener('livewire:navigated', () => {
-    new DragAndDrop('[drag-item]', '[drop-item]');
-});
+window.DragAndDrop = DragAndDrop;

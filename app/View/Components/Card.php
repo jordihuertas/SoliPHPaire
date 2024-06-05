@@ -5,6 +5,8 @@ namespace App\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Renderless;
 
 class Card extends Component
 {
@@ -66,5 +68,12 @@ class Card extends Component
         }
 
         return view('components.card', compact('number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition', 'cardIndex'));
+    }
+
+    #[Renderless]
+    public static function buildCard($card_data){
+        $card_data = json_decode(json_encode($card_data), FALSE)->card;
+        $card = new Card($card_data->number, $card_data->type->name, false, 1, $card_data->position, 0);
+        return $card->render()->render();
     }
 }

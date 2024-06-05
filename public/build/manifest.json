@@ -13,14 +13,20 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
-  "resources/js/game.js": {
-    "file": "assets/game-gw-cp_nz.js",
-    "name": "game",
-    "src": "resources/js/game.js",
+  "resources/js/drag-and-drop.js": {
+    "file": "assets/drag-and-drop-zBq3FXmc.js",
+    "name": "drag-and-drop",
+    "src": "resources/js/drag-and-drop.js",
+    "isEntry": true
+  },
+  "resources/js/game-controller.js": {
+    "file": "assets/game-controller-l0sNRNKZ.js",
+    "name": "game-controller",
+    "src": "resources/js/game-controller.js",
     "isEntry": true
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-Cbnu7bKR.css",
+    "file": "assets/app-Bm6Naymy.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
   }

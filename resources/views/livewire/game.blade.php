@@ -11,7 +11,7 @@
 
     <div class="container main-decks">
         <div class="row ">
-            <div class="col-1">
+            <div id="main_deck" class="col-1">
                 <x-card-slot :droppable="false"/>
                 @php
                     $card = last($cards->main_deck);
@@ -19,7 +19,7 @@
                 @endphp
                 <x-card :number="$card->number" :typeName="$card->type->name" :isHidden="$card->isHidden" :cardDeck="$card->deck" :cardPosition="$card->position" :card-index="$index"/>
             </div>
-            <div class="col-1">
+            <div id="main_deck_shown" class="col-1">
                 <x-card-slot :droppable="false"/>
             </div>
             <div class="col-1 offset-1 pile-deck h-0">
@@ -90,9 +90,21 @@
             </div>
         </div>
     </div>
+    <button @click="$dispatch('test-event')">...</button>
+
 
     @assets
         @vite('resources/js/drag-and-drop.js')
+        @vite('resources/js/game-controller.js')
     @endassets
+
+    @script
+    <script>
+        document.addEventListener('livewire:navigated', () => {
+            const gameComponent = @this;
+            new GameController();
+        });
+    </script>
+    @endscript
 </div>
 
