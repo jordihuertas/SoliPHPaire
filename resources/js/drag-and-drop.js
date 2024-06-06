@@ -138,6 +138,7 @@ class DragAndDrop {
                 this.target.parentNode.appendChild(sibling);
                 sibling.classList.add('card-index-' + (++nextCardIndex));
                 sibling.setAttribute('card-index', nextCardIndex);
+                sibling.setAttribute('card-deck', this.target.parentNode.getAttribute('card-deck'));
                 if (index + 1 === this.nextDraggingElements.length) {
                     sibling.setAttribute('drop-item', 'true');
                 }

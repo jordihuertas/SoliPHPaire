@@ -19,6 +19,7 @@ class Card extends Component
      * @param $cardPosition
      */
 
+    private string $uuid;
     private string $number;
     private string $typeName;
     private bool $isHidden;
@@ -26,8 +27,9 @@ class Card extends Component
     private string $cardPosition;
     private string $cardIndex;
 
-    public function __construct($number, $typeName, $isHidden, $cardDeck, $cardPosition, $cardIndex)
+    public function __construct($uuid, $number, $typeName, $isHidden, $cardDeck, $cardPosition, $cardIndex)
     {
+        $this->uuid = $uuid;
         $this->number = $number;
         $this->typeName = $typeName;
         $this->isHidden = $isHidden;
@@ -38,6 +40,7 @@ class Card extends Component
 
     public function render(): View|Closure|string
     {
+        $uuid = $this->uuid;
         $number = 'hidden';
         $typeName = 'hidden';
         $isHidden = $this->isHidden;
@@ -67,12 +70,12 @@ class Card extends Component
             }
         }
 
-        return view('components.card', compact('number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition', 'cardIndex'));
+        return view('components.card', compact('uuid', 'number', 'typeName', 'isHidden', 'cardDeck', 'cardPosition', 'cardIndex'));
     }
 
     #[Renderless]
     public static function buildCard($card_data){
-        $card = new Card($card_data->number, $card_data->type->name, false, 1, $card_data->position, 0);
+        $card = new Card($card_data->uuid, $card_data->number, $card_data->type->name, false, 1, $card_data->position, 0);
         return $card->render()->render();
     }
 }

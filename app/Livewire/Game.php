@@ -7,6 +7,7 @@ use App\View\Components\Card;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Ramsey\Uuid\Uuid;
 
 class Game extends Component
 {
@@ -18,12 +19,12 @@ class Game extends Component
         $cards = $card_controller->getAllCards();
         // $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
 
+        $this->generateUuids($cards);
         $decks = $this->mountDecks($cards);
         $this->cards = $decks;
     }
     public function render(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Illuminate\Contracts\Foundation\Application
     {
-//        dump($this->cards);
         return view('livewire.game');
     }
 
@@ -44,6 +45,7 @@ class Game extends Component
                 if ($cardIndex < count($cards)) {
                     $card = new \StdClass();
                     $card->id = $cards[$cardIndex]->id;
+                    $card->uuid = $cards[$cardIndex]->uuid;
                     $card->number = $cards[$cardIndex]->number;
                     $card->card_type_id = $cards[$cardIndex]->card_type_id;
                     $card->type = $cards[$cardIndex]->type;
@@ -69,6 +71,7 @@ class Game extends Component
         while ($cardIndex < count($cards)) {
             $card = new \StdClass();
             $card->id = $cards[$cardIndex]->id;
+            $card->uuid = $cards[$cardIndex]->uuid;
             $card->number = $cards[$cardIndex]->number;
             $card->card_type_id = $cards[$cardIndex]->card_type_id;
             $card->type = $cards[$cardIndex]->type;
@@ -116,7 +119,114 @@ class Game extends Component
             }
         }
 
+        dump($this->cards);
         // Return next card to js event
         $this->dispatch('main-deck-next-card-callback', ['card' => $card_html, 'last_deck_card' => $last_deck_card, 'deck_is_empty' => $deck_is_empty]);
+    }
+
+    #[On('update-dropped-cards')]
+    #[Renderless]
+    public function updateDroppedCards($droppedCards){
+        $droppedCards = json_decode(json_encode($droppedCards));
+        $foundCards = $this->findDroppedCards($droppedCards);
+
+        foreach ($foundCards as $foundCard) {
+            $droppedCard = array_values(array_filter($droppedCards, function($droppedCard) use ($foundCard) {
+                return $droppedCard->uuid === $foundCard->uuid;
+            }))[0];
+
+            if (isset($this->cards->decks[$droppedCard->deck])) {
+                $this->addToNewDeck($foundCard, $droppedCard->deck);
+                $this->removeFromOldDeck($foundCard, $droppedCard->deck);
+            }
+//            dump('CARD OBJECT', $this->cards);
+//            dump('===============================================');
+        }
+    }
+
+    private function addToNewDeck($card, $newDeck) {
+        $this->cards->decks[$newDeck][] = $card;
+    }
+
+    private function removeFromOldDeck($card, $newDeck) {
+        // If main deck
+        if ($card->deck === '0') {
+            $this->removeFromMainDeckShown($card);
+        } else {
+            // If numeric deck
+            $this->removeFromNumericDeck($card);
+        }
+        $card->deck = $newDeck;
+    }
+
+    private function removeFromMainDeckShown($card) {
+        foreach ($this->cards->main_deck_shown as $key => $currentCard) {
+            if ($currentCard->uuid === $card->uuid) {
+                unset($this->cards->main_deck_shown[$key]);
+                $this->cards->main_deck_shown = array_values($this->cards->main_deck_shown);
+                break;
+            }
+        }
+    }
+
+    private function removeFromNumericDeck($card) {
+        $card_deck = intval($card->deck);
+        foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
+            if ($currentCard->uuid === $card->uuid) {
+                unset($this->cards->decks[$card_deck][$key]);
+                $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
+                break;
+            }
+        }
+    }
+
+    public function findDroppedCards($droppedCards) {
+        $foundCards = [];
+
+        $droppedUuids = array_map(function($droppedCard) {
+            return $droppedCard->uuid;
+        }, $droppedCards);
+
+        foreach ($this->cards->main_deck as $card) {
+            if (in_array($card->uuid, $droppedUuids)) {
+                $foundCards[] = $card;
+            }
+        }
+
+        foreach ($this->cards->main_deck_shown as $card) {
+            if (in_array($card->uuid, $droppedUuids)) {
+                $foundCards[] = $card;
+            }
+        }
+
+        foreach ($this->cards->decks as $deck) {
+            foreach ($deck as $card) {
+                if (in_array($card->uuid, $droppedUuids)) {
+                    $foundCards[] = $card;
+                }
+            }
+        }
+
+        return $foundCards;
+    }
+
+    function generateUniqueUuid(&$existingUuids): string
+    {
+        do {
+            $uuid = Uuid::uuid4()->toString();
+        } while (in_array($uuid, $existingUuids));
+
+        return $uuid;
+    }
+
+    function generateUuids(&$cards): void
+    {
+        $existingUuids = [];
+
+        for ($i = 0; $i < count($cards); $i++) {
+            $uniqueUuid = $this->generateUniqueUuid($existingUuids);
+            $existingUuids[] = $uniqueUuid;
+            $cards[$i]->uuid = $uniqueUuid;
+        }
     }
 }

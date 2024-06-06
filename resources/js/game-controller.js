@@ -12,12 +12,28 @@ class GameController {
     }
 
     onCardDropped(draggedElements) {
-        console.log('Drop card action:', draggedElements);
+        let cards = [];
 
+        const uuidArray = [];
+        draggedElements.forEach((card) => {
+            let cardObject = {};
+            cardObject.uuid = card.getAttribute('card-uuid');
+            cardObject.deck = card.getAttribute('card-deck');
+            cards.push(cardObject);
+        });
+
+        console.log('Drop card action:', cards);
+        Livewire.dispatch('update-dropped-cards', { droppedCards: cards });
+        const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
+
+            console.log('ajax callback');
+
+            updateDroppedCardsCallback_cleanup();
+        });
     }
 
     async handleClickMainDeck(e) {
-        Livewire.dispatch('main-deck-next-card', { refreshPosts: true });
+        Livewire.dispatch('main-deck-next-card');
 
         const mainDeckNextCardCallback_cleanup = Livewire.on('main-deck-next-card-callback', (event) => {
             const data = event[0];

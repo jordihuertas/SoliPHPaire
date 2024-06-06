@@ -1,4 +1,4 @@
-<div card-deck="{{ $cardDeck }}" class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto" card-index="{{ $cardIndex }}"
+<div card-uuid="{{ $uuid }}" card-deck="{{ $cardDeck }}" class="poker-card poker-card--{{ $typeName }} card-index-{{ $cardIndex }} ratio ratio-2x3 mx-auto" card-index="{{ $cardIndex }}"
     @if(!$isHidden) drag-item drop-item @endif
     >
     @if(!$isHidden)
