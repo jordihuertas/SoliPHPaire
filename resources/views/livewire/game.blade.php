@@ -22,16 +22,16 @@
             <div id="main_deck_shown" class="col-1">
                 <x-card-slot :droppable="false"/>
             </div>
-            <div class="col-1 offset-1 pile-deck h-0">
+            <div class="col-1 offset-1 pile-deck h-0" card-deck="1">
                 <x-card-slot :droppable="true"/>
             </div>
-            <div class="col-1 pile-deck">
+            <div class="col-1 pile-deck" card-deck="2">
                 <x-card-slot :droppable="true"/>
             </div>
-            <div class="col-1 pile-deck">
+            <div class="col-1 pile-deck" card-deck="3">
                 <x-card-slot :droppable="true"/>
             </div>
-            <div class="col-1 pile-deck">
+            <div class="col-1 pile-deck" card-deck="4">
                 <x-card-slot :droppable="true"/>
             </div>
         </div>

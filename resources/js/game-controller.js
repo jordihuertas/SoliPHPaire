@@ -19,6 +19,10 @@ class GameController {
             let cardObject = {};
             cardObject.uuid = card.getAttribute('card-uuid');
             cardObject.deck = card.getAttribute('card-deck');
+            cardObject.deckType = 'deck';
+            if (card.parentNode.classList.contains('pile-deck')){
+                cardObject.deckType = 'pile';
+            }
             cards.push(cardObject);
         });
 

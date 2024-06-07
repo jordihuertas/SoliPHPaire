@@ -33,6 +33,10 @@ class Game extends Component
         // Deck init
         $main_deck = [];
         $main_deck_shown = [];
+        $pile_decks = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $pile_decks[$i] = [];
+        }
         $decks = [];
         for ($i = 1; $i <= 7; $i++) {
             $decks[$i] = [];
@@ -50,6 +54,7 @@ class Game extends Component
                     $card->card_type_id = $cards[$cardIndex]->card_type_id;
                     $card->type = $cards[$cardIndex]->type;
                     $card->deck = strval($j);
+                    $card->deck_type = 'deck';
                     $card->position = strval($i);
                     $card->isHidden = true;
                     $decks[$j][] = $card;
@@ -62,7 +67,6 @@ class Game extends Component
         for ($i = 1; $i <= 7; $i++) {
             if (!empty($decks[$i])) {
                 $decks[$i][count($decks[$i]) - 1]->isHidden = false;
-//                dump($decks[$i]);
             }
         }
 
@@ -76,6 +80,7 @@ class Game extends Component
             $card->card_type_id = $cards[$cardIndex]->card_type_id;
             $card->type = $cards[$cardIndex]->type;
             $card->deck = "0";
+            $card->deck_type = null;
             $card->position = strval($i);
             $card->isHidden = true;
             $main_deck[] = $card;
@@ -87,6 +92,7 @@ class Game extends Component
         $cards = new \stdClass();
         $cards->main_deck = $main_deck;
         $cards->main_deck_shown = $main_deck_shown;
+        $cards->pile_decks = $pile_decks;
         $cards->decks = $decks;
 
         return $cards;
@@ -119,7 +125,6 @@ class Game extends Component
             }
         }
 
-        dump($this->cards);
         // Return next card to js event
         $this->dispatch('main-deck-next-card-callback', ['card' => $card_html, 'last_deck_card' => $last_deck_card, 'deck_is_empty' => $deck_is_empty]);
     }
@@ -136,25 +141,28 @@ class Game extends Component
             }))[0];
 
             if (isset($this->cards->decks[$droppedCard->deck])) {
-                $this->addToNewDeck($foundCard, $droppedCard->deck);
-                $this->removeFromOldDeck($foundCard, $droppedCard->deck);
+                $this->addToNewDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
+                $this->removeFromOldDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
             }
-//            dump('CARD OBJECT', $this->cards);
-//            dump('===============================================');
         }
     }
 
-    private function addToNewDeck($card, $newDeck) {
-        $this->cards->decks[$newDeck][] = $card;
+    private function addToNewDeck($card, $deckType, $newDeck) {
+        if ($deckType === 'deck'){
+            $this->cards->decks[$newDeck][] = $card;
+        }
+        else if ($deckType === 'pile'){
+            $this->cards->pile_decks[$newDeck][] = $card;
+        }
     }
 
-    private function removeFromOldDeck($card, $newDeck) {
+    private function removeFromOldDeck($card, $deckType, $newDeck) {
         // If main deck
         if ($card->deck === '0') {
             $this->removeFromMainDeckShown($card);
         } else {
             // If numeric deck
-            $this->removeFromNumericDeck($card);
+            $this->removeFromNumericDeck($card, $deckType, $newDeck);
         }
         $card->deck = $newDeck;
     }
@@ -169,13 +177,25 @@ class Game extends Component
         }
     }
 
-    private function removeFromNumericDeck($card) {
+    private function removeFromNumericDeck($card, $deckType, $newDeck) {
         $card_deck = intval($card->deck);
-        foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
-            if ($currentCard->uuid === $card->uuid) {
-                unset($this->cards->decks[$card_deck][$key]);
-                $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
-                break;
+
+        if ($card->deck_type === 'deck'){
+            foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
+                if ($currentCard->uuid === $card->uuid) {
+                    $card->deck_type = $deckType;
+                    unset($this->cards->decks[$card_deck][$key]);
+                    $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
+                }
+            }
+        }
+        else if ($card->deck_type === 'pile'){
+            foreach ($this->cards->pile_decks[$card_deck] as $key => $currentCard) {
+                if ($currentCard->uuid === $card->uuid) {
+                    $card->deck_type = $deckType;
+                    unset($this->cards->pile_decks[$card_deck][$key]);
+                    $this->cards->pile_decks[$card_deck] = array_values($this->cards->pile_decks[$card_deck]);
+                }
             }
         }
     }
@@ -196,6 +216,14 @@ class Game extends Component
         foreach ($this->cards->main_deck_shown as $card) {
             if (in_array($card->uuid, $droppedUuids)) {
                 $foundCards[] = $card;
+            }
+        }
+
+        foreach ($this->cards->pile_decks as $deck) {
+            foreach ($deck as $card) {
+                if (in_array($card->uuid, $droppedUuids)) {
+                    $foundCards[] = $card;
+                }
             }
         }
 
