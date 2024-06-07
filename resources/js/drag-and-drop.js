@@ -126,7 +126,12 @@ class DragAndDrop {
             const droppableSlots = this.droppableSlots;
 
             if (this.onDropCallback && typeof this.onDropCallback === 'function') {
-                this.onDropCallback(nextDraggingElements, (canBeDropped) => {
+                const data = {
+                    nextDraggingElements: nextDraggingElements,
+                    target: target
+                }
+
+                this.onDropCallback(data, (canBeDropped) => {
                     console.log('Callback from GameController has been executed. Here should determine if card can be dropped or not');
                     console.log('canBeDropped: ', canBeDropped);
                     if (!canBeDropped){
@@ -137,10 +142,6 @@ class DragAndDrop {
                     this.updateDraggingCardsToTargetPosition(target, nextDraggingElements, prevDraggingElement, droppableSlots);
                 });
             }
-
-
-
-
 
             this.reset();
         }

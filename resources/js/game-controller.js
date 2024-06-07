@@ -11,10 +11,11 @@ class GameController {
         this.mainDeck.addEventListener('click', this.handleClickMainDeck);
     }
 
-    onCardDropped(draggedElements, callback) {
-        let cards = [];
+    onCardDropped(data, callback) {
+        const draggedElements = data.nextDraggingElements;
+        const targetElement = data.target;
 
-        const uuidArray = [];
+        let cards = [];
         draggedElements.forEach((card) => {
             let cardObject = {};
             cardObject.uuid = card.getAttribute('card-uuid');
@@ -26,13 +27,21 @@ class GameController {
             cards.push(cardObject);
         });
 
-        console.log('Drop card action:', cards);
-        Livewire.dispatch('update-dropped-cards', { droppedCards: cards });
-        const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
+        let target = {};
+        target.uuid = targetElement.getAttribute('card-uuid');
+        target.deck = targetElement.getAttribute('card-deck');
+        target.deckType = 'deck';
+        if (targetElement.parentNode.classList.contains('pile-deck')){
+            target.deckType = 'pile';
+        }
 
-            console.log('ajax callback');
+        console.log('Drop card action:');
+        console.log('Cards:', cards);
+        console.log('Target:', target);
+        Livewire.dispatch('update-dropped-cards', { droppedCards: cards, dropSlot: true });
+        const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
             if (callback && typeof callback === 'function') {
-                callback();
+                callback(event[0].can_be_dropped);
             }
             updateDroppedCardsCallback_cleanup();
         });
