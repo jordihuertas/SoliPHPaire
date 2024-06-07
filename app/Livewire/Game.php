@@ -8,16 +8,18 @@ use Livewire\Attributes\Renderless;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Ramsey\Uuid\Uuid;
+use function PHPUnit\Framework\isNull;
 
 class Game extends Component
 {
     public $cards;
+    private $nextCardToBeShown;
 
     public function mount()
     {
         $card_controller = new CardsController();
-        $cards = $card_controller->getAllCards();
-        // $cards->shuffle(); //Remove for getting and ordered deck for testing purposes
+//        $cards = $card_controller->getAllCards();
+        $cards = $card_controller->getAllCards()->shuffle();
 
         $this->generateUuids($cards);
         $decks = $this->mountDecks($cards);
@@ -151,8 +153,10 @@ class Game extends Component
             }
         }
 
-        dump($this->cards);
-        $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true]);
+//        dump($this->nextCardToBeShown);
+//        dump($this->cards);
+        $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true, 'next_card_to_be_shown' => $this->nextCardToBeShown]);
+        $this->nextCardToBeShown = null;
     }
 
     private function canBeDropped($fromCard, $toCard): bool
@@ -160,8 +164,24 @@ class Game extends Component
         if ($toCard->deckType === 'deck' || $toCard->deckType === 'pile') {
             if ($toCard->uuid === null) {
                 // Empty slot conditions
-                return ($toCard->deckType === 'deck' && $fromCard->number === 13) ||
-                    ($toCard->deckType === 'pile' && $fromCard->number === 1);
+//                dump('is a slot');
+//                dump($toCard->deckType);
+//                if ($toCard->deckType === 'deck') {
+//                    if ($fromCard->number === 13){
+//                        return true;
+//                    }
+//                }
+//                else{
+//                    if ($fromCard->number === 1){
+//                        return true;
+//                    }
+//                }
+                if (($toCard->deckType === 'deck' && $fromCard->number === 13) ||
+                    ($toCard->deckType !== 'deck' && $fromCard->number === 1)) {
+                    return true;
+                }
+//                return ($toCard->deckType === 'deck' && $fromCard->number === 13) ||
+//                    ($toCard->deckType === 'pile' && $fromCard->number === 1);
             } else {
                 $toCard = $this->findDroppedCards(array($toCard));
                 $toCard = $toCard[0];
@@ -216,10 +236,19 @@ class Game extends Component
         if ($card->deck_type_old === 'deck'){
             foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
                 if ($currentCard->uuid === $card->uuid) {
+//                    dump('unsetting card ', $this->cards->decks[$card_deck][$key]);
                     unset($this->cards->decks[$card_deck][$key]);
                     $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
                 }
             }
+
+
+            $should_show_next_card = $this->checkIfTheNextCardShouldBeShown(end($this->cards->decks[$card_deck]));
+            if ($should_show_next_card){
+                end($this->cards->decks[$card_deck])->isHidden = false;
+            }
+
+//            dump(end($this->cards->decks[$card_deck]));
         }
         else if ($card->deck_type_old === 'pile'){
             foreach ($this->cards->pile_decks[$card_deck] as $key => $currentCard) {
@@ -229,6 +258,17 @@ class Game extends Component
                 }
             }
         }
+    }
+
+    private function checkIfTheNextCardShouldBeShown($card){
+        if (!$card){
+            return false;
+        }
+
+        if ($card->isHidden)
+            $card->isHidden = false;
+            $this->nextCardToBeShown = Card::buildCard($card);
+            return true;
     }
 
     public function findDroppedCards($droppedCards) {

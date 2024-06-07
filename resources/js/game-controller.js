@@ -40,8 +40,29 @@ class GameController {
         console.log('Target:', target);
         Livewire.dispatch('update-dropped-cards', { droppedCards: cards, dropSlot: target });
         const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
+            const data = event[0];
             if (callback && typeof callback === 'function') {
-                callback(event[0].can_be_dropped);
+                callback(data.can_be_dropped);
+            }
+
+            console.log(data.next_card_to_be_shown);
+            if (data.next_card_to_be_shown !== null && data.next_card_to_be_shown !== undefined){
+                const cardNode = Utils.buildNodeFromHtml(data.next_card_to_be_shown);
+
+                const firstDraggedElement = draggedElements[0];
+
+                const cardDeck = firstDraggedElement.getAttribute('card-deck');
+                const cardPosition = parseInt(firstDraggedElement.getAttribute('card-index')) - 1;
+
+                cardNode.setAttribute('card-deck', cardDeck);
+                cardNode.setAttribute('card-index', cardPosition);
+                cardNode.classList.remove('card-index-0');
+                cardNode.classList.add('card-index-'+cardPosition);
+
+                const element = document.querySelector('.other-decks [card-deck="'+cardDeck+'"] [card-index="'+cardPosition+'"]');
+                element.replaceWith(cardNode);
+
+                this.dragAndDrop.reset();
             }
             updateDroppedCardsCallback_cleanup();
         });
