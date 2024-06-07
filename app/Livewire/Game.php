@@ -133,6 +133,7 @@ class Game extends Component
     #[Renderless]
     public function updateDroppedCards($droppedCards, $dropSlot){
         $droppedCards = json_decode(json_encode($droppedCards));
+        $dropSlot = json_decode(json_encode($dropSlot));
         $foundCards = $this->findDroppedCards($droppedCards);
 
 //        dump($droppedCards, $foundCards);
@@ -158,6 +159,47 @@ class Game extends Component
 
     private function canBeDropped($fromCard, $toCard): bool
     {
+        if ($toCard->deckType === 'deck'){ //If trying to drop into a bottom deck
+            if ($toCard->uuid === null){ //If is an empty bottom dropping slot
+                if ($fromCard->number === 13){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{ //If is a card
+                $toCard = $this->findDroppedCards($toCard = array($toCard));
+                $toCard = $toCard[0];
+                if ($fromCard->number + 1 === $toCard->number && $fromCard->type->color !== $toCard->type->color){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        else if ($toCard->deckType === 'pile'){ //If trying to drop into a top pile
+            if ($toCard->uuid === null){ //If is empty
+                if ($fromCard->number === 1){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{ //If there is a card
+                $toCard = $this->findDroppedCards($toCard = array($toCard));
+                $toCard = $toCard[0];
+                if ($fromCard->number === $toCard->number + 1 && $fromCard->type->id === $toCard->type->id){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+
         return false;
     }
 

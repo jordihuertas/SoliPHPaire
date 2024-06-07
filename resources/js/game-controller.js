@@ -38,7 +38,7 @@ class GameController {
         console.log('Drop card action:');
         console.log('Cards:', cards);
         console.log('Target:', target);
-        Livewire.dispatch('update-dropped-cards', { droppedCards: cards, dropSlot: true });
+        Livewire.dispatch('update-dropped-cards', { droppedCards: cards, dropSlot: target });
         const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
             if (callback && typeof callback === 'function') {
                 callback(event[0].can_be_dropped);
