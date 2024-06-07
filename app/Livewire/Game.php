@@ -159,47 +159,22 @@ class Game extends Component
 
     private function canBeDropped($fromCard, $toCard): bool
     {
-        if ($toCard->deckType === 'deck'){ //If trying to drop into a bottom deck
-            if ($toCard->uuid === null){ //If is an empty bottom dropping slot
-                if ($fromCard->number === 13){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-            else{ //If is a card
-                $toCard = $this->findDroppedCards($toCard = array($toCard));
+        if ($toCard->deckType === 'deck' || $toCard->deckType === 'pile') {
+            if ($toCard->uuid === null) {
+                // Empty slot conditions
+                return ($toCard->deckType === 'deck' && $fromCard->number === 13) ||
+                    ($toCard->deckType === 'pile' && $fromCard->number === 1);
+            } else {
+                // Slot with a card
+                $toCard = $this->findDroppedCards(array($toCard));
                 $toCard = $toCard[0];
-                if ($fromCard->number + 1 === $toCard->number && $fromCard->type->color !== $toCard->type->color){
-                    return true;
-                }
-                else{
-                    return false;
+                if ($toCard->deck_type === 'deck') {
+                    return $fromCard->number + 1 === $toCard->number && $fromCard->type->color !== $toCard->type->color;
+                } else {
+                    return $fromCard->number === $toCard->number + 1 && $fromCard->type->id === $toCard->type->id;
                 }
             }
         }
-        else if ($toCard->deckType === 'pile'){ //If trying to drop into a top pile
-            if ($toCard->uuid === null){ //If is empty
-                if ($fromCard->number === 1){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-            else{ //If there is a card
-                $toCard = $this->findDroppedCards($toCard = array($toCard));
-                $toCard = $toCard[0];
-                if ($fromCard->number === $toCard->number + 1 && $fromCard->type->id === $toCard->type->id){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-        }
-
         return false;
     }
 
