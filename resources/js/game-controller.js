@@ -11,7 +11,7 @@ class GameController {
         this.mainDeck.addEventListener('click', this.handleClickMainDeck);
     }
 
-    onCardDropped(draggedElements) {
+    onCardDropped(draggedElements, callback) {
         let cards = [];
 
         const uuidArray = [];
@@ -31,7 +31,9 @@ class GameController {
         const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
 
             console.log('ajax callback');
-
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
             updateDroppedCardsCallback_cleanup();
         });
     }

@@ -152,7 +152,9 @@ class DragAndDrop {
             this.droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
 
             if (this.onDropCallback && typeof this.onDropCallback === 'function') {
-                this.onDropCallback(this.nextDraggingElements);
+                this.onDropCallback(this.nextDraggingElements, () => {
+                    console.log('Callback from GameController has been executed. Here should determine if card can be dropped or not');
+                });
             }
 
             this.reset();

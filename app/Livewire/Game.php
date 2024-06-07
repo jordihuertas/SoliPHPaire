@@ -145,6 +145,7 @@ class Game extends Component
                 $this->removeFromOldDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
             }
         }
+        $this->dispatch('update-dropped-cards-callback');
     }
 
     private function addToNewDeck($card, $deckType, $newDeck) {
