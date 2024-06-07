@@ -15,15 +15,19 @@ class CardTypesSeeder extends Seeder
     {
         CardTypes::create([
             'name' => 'club',
+            'color' => 'black',
         ]);
         CardTypes::create([
             'name' => 'diamond',
+            'color' => 'red',
         ]);
         CardTypes::create([
             'name' => 'heart',
+            'color' => 'red',
         ]);
         CardTypes::create([
             'name' => 'spade',
+            'color' => 'black',
         ]);
     }
 }
