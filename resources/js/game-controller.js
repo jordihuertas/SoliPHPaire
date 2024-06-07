@@ -29,7 +29,7 @@ class GameController {
 
         let target = {};
         target.uuid = targetElement.getAttribute('card-uuid');
-        target.deck = targetElement.getAttribute('card-deck');
+        target.deck = targetElement.parentNode.getAttribute('card-deck');
         target.deckType = 'deck';
         if (targetElement.parentNode.classList.contains('pile-deck')){
             target.deckType = 'pile';

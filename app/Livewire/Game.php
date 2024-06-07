@@ -136,24 +136,22 @@ class Game extends Component
         $dropSlot = json_decode(json_encode($dropSlot));
         $foundCards = $this->findDroppedCards($droppedCards);
 
-//        dump($droppedCards, $foundCards);
-
         if (!$this->canBeDropped($foundCards[0], $dropSlot)){
             $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => false]);
             return;
         }
-
         foreach ($foundCards as $foundCard) {
             $droppedCard = array_values(array_filter($droppedCards, function($droppedCard) use ($foundCard) {
                 return $droppedCard->uuid === $foundCard->uuid;
             }))[0];
 
             if (isset($this->cards->decks[$droppedCard->deck])) {
-                $this->addToNewDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
+                $this->addToNewDeck($foundCard, $dropSlot->deckType, $dropSlot->deck);
                 $this->removeFromOldDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
             }
         }
 
+        dump($this->cards);
         $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true]);
     }
 
@@ -165,9 +163,9 @@ class Game extends Component
                 return ($toCard->deckType === 'deck' && $fromCard->number === 13) ||
                     ($toCard->deckType === 'pile' && $fromCard->number === 1);
             } else {
-                // Slot with a card
                 $toCard = $this->findDroppedCards(array($toCard));
                 $toCard = $toCard[0];
+
                 if ($toCard->deck_type === 'deck') {
                     return $fromCard->number + 1 === $toCard->number && $fromCard->type->color !== $toCard->type->color;
                 } else {
@@ -179,23 +177,27 @@ class Game extends Component
     }
 
     private function addToNewDeck($card, $deckType, $newDeck) {
-        if ($deckType === 'deck'){
-            $this->cards->decks[$newDeck][] = $card;
+        $card->deck_type_old = $card->deck_type;
+        $card->deck_old = $card->deck;
+        $card->deck_type = $deckType;
+        $card->deck = $newDeck;
+
+        if ($card->deck_type === 'deck'){
+            array_push($this->cards->decks[$newDeck], $card);
         }
-        else if ($deckType === 'pile'){
-            $this->cards->pile_decks[$newDeck][] = $card;
+        else if ($card->deck_type === 'pile'){
+            array_push($this->cards->pile_decks[$newDeck], $card);
         }
     }
 
     private function removeFromOldDeck($card, $deckType, $newDeck) {
         // If main deck
-        if ($card->deck === '0') {
+        if ($card->deck_old === '0') {
             $this->removeFromMainDeckShown($card);
         } else {
             // If numeric deck
             $this->removeFromNumericDeck($card, $deckType, $newDeck);
         }
-        $card->deck = $newDeck;
     }
 
     private function removeFromMainDeckShown($card) {
@@ -209,21 +211,19 @@ class Game extends Component
     }
 
     private function removeFromNumericDeck($card, $deckType, $newDeck) {
-        $card_deck = intval($card->deck);
+        $card_deck = intval($card->deck_old);
 
-        if ($card->deck_type === 'deck'){
+        if ($card->deck_type_old === 'deck'){
             foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
                 if ($currentCard->uuid === $card->uuid) {
-                    $card->deck_type = $deckType;
                     unset($this->cards->decks[$card_deck][$key]);
                     $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
                 }
             }
         }
-        else if ($card->deck_type === 'pile'){
+        else if ($card->deck_type_old === 'pile'){
             foreach ($this->cards->pile_decks[$card_deck] as $key => $currentCard) {
                 if ($currentCard->uuid === $card->uuid) {
-                    $card->deck_type = $deckType;
                     unset($this->cards->pile_decks[$card_deck][$key]);
                     $this->cards->pile_decks[$card_deck] = array_values($this->cards->pile_decks[$card_deck]);
                 }
