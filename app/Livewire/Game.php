@@ -131,9 +131,16 @@ class Game extends Component
 
     #[On('update-dropped-cards')]
     #[Renderless]
-    public function updateDroppedCards($droppedCards){
+    public function updateDroppedCards($droppedCards, $dropSlot){
         $droppedCards = json_decode(json_encode($droppedCards));
         $foundCards = $this->findDroppedCards($droppedCards);
+
+//        dump($droppedCards, $foundCards);
+
+        if (!$this->canBeDropped($foundCards[0], $dropSlot)){
+            $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => false]);
+            return;
+        }
 
         foreach ($foundCards as $foundCard) {
             $droppedCard = array_values(array_filter($droppedCards, function($droppedCard) use ($foundCard) {
@@ -145,7 +152,13 @@ class Game extends Component
                 $this->removeFromOldDeck($foundCard, $droppedCard->deckType, $droppedCard->deck);
             }
         }
-        $this->dispatch('update-dropped-cards-callback');
+
+        $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true]);
+    }
+
+    private function canBeDropped($fromCard, $toCard): bool
+    {
+        return false;
     }
 
     private function addToNewDeck($card, $deckType, $newDeck) {

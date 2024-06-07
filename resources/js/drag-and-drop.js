@@ -109,56 +109,82 @@ class DragAndDrop {
         document.removeEventListener('mouseup', this.handleMouseUp);
 
         if (this.draggingElement) {
+            this.nextDraggingElements.unshift(this.draggingElement);
+            const nextDraggingElements = this.nextDraggingElements;
+            const originalPosition = this.originalPosition;
+            const originalParentNode = this.originalParentNode;
+
+            // If target is empty (dropped on the air) reset to its original position
             if (!this.target) {
-                this.nextDraggingElements.unshift(this.draggingElement);
-                await Utils.moveElementsTo(this.nextDraggingElements, this.originalPosition);
-                this.nextDraggingElements.forEach(sibling => {
-                    sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
-                    sibling.removeAttribute('style');
-                    sibling.setAttribute('drop-item', 'true');
-                    this.originalParentNode.appendChild(sibling);
-                });
-                this.reset();
+                await this.resetDraggedCards(nextDraggingElements, originalPosition,originalParentNode);
                 return;
             }
 
-            let targetCardIndex = this.target.getAttribute('card-index') || 0;
-            let nextCardIndex = parseInt(targetCardIndex);
-
-            this.nextDraggingElements.unshift(this.draggingElement);
-            const targetRect = this.target.getBoundingClientRect();
-            const toPosition = { top: targetRect.top + 20, left: targetRect.left };
-            await Utils.moveElementsTo(this.nextDraggingElements, toPosition);
-            this.nextDraggingElements.forEach((sibling, index) => {
-                sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
-                const siblingCardIndex = sibling.getAttribute('card-index');
-                sibling.classList.remove('card-index-' + (siblingCardIndex));
-                sibling.classList.remove(this.cssClass.dragging);
-                sibling.removeAttribute('style');
-                this.target.parentNode.appendChild(sibling);
-                sibling.classList.add('card-index-' + (++nextCardIndex));
-                sibling.setAttribute('card-index', nextCardIndex);
-                sibling.setAttribute('card-deck', this.target.parentNode.getAttribute('card-deck'));
-                if (index + 1 === this.nextDraggingElements.length) {
-                    sibling.setAttribute('drop-item', 'true');
-                }
-            });
-
-            this.target.removeAttribute('drop-item');
-            if (this.prevDraggingElement) {
-                this.prevDraggingElement.setAttribute('drop-item', 'true');
-            }
-
-            this.droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
+            // Check if card can be dropped to the target and update data on the backend
+            const target = this.target;
+            const prevDraggingElement = this.prevDraggingElement;
+            const droppableSlots = this.droppableSlots;
 
             if (this.onDropCallback && typeof this.onDropCallback === 'function') {
-                this.onDropCallback(this.nextDraggingElements, () => {
+                this.onDropCallback(nextDraggingElements, (canBeDropped) => {
                     console.log('Callback from GameController has been executed. Here should determine if card can be dropped or not');
+                    console.log('canBeDropped: ', canBeDropped);
+                    if (!canBeDropped){
+                        this.resetDraggedCards(nextDraggingElements, originalPosition, originalParentNode);
+                        return;
+                    }
+
+                    this.updateDraggingCardsToTargetPosition(target, nextDraggingElements, prevDraggingElement, droppableSlots);
                 });
             }
 
+
+
+
+
             this.reset();
         }
+    }
+
+    async resetDraggedCards(nextDraggingElements, originalPosition, originalParentNode) {
+        await Utils.moveElementsTo(nextDraggingElements, originalPosition);
+        nextDraggingElements.forEach(sibling => {
+            sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
+            sibling.removeAttribute('style');
+            sibling.setAttribute('drop-item', 'true');
+            originalParentNode.appendChild(sibling);
+        });
+        this.reset();
+    }
+
+    async updateDraggingCardsToTargetPosition(target, nextDraggingElements, prevDraggingElement, droppableSlots) {
+        let targetCardIndex = target.getAttribute('card-index') || 0;
+        let nextCardIndex = parseInt(targetCardIndex);
+
+        const targetRect = target.getBoundingClientRect();
+        const toPosition = {top: targetRect.top + 20, left: targetRect.left};
+        await Utils.moveElementsTo(nextDraggingElements, toPosition);
+        nextDraggingElements.forEach((sibling, index) => {
+            sibling.classList.remove('poker-card--selected', 'poker-card--selected__stack');
+            const siblingCardIndex = sibling.getAttribute('card-index');
+            sibling.classList.remove('card-index-' + (siblingCardIndex));
+            sibling.classList.remove(this.cssClass.dragging);
+            sibling.removeAttribute('style');
+            target.parentNode.appendChild(sibling);
+            sibling.classList.add('card-index-' + (++nextCardIndex));
+            sibling.setAttribute('card-index', nextCardIndex);
+            sibling.setAttribute('card-deck', target.parentNode.getAttribute('card-deck'));
+            if (index + 1 === nextDraggingElements.length) {
+                sibling.setAttribute('drop-item', 'true');
+            }
+        });
+
+        target.removeAttribute('drop-item');
+        if (prevDraggingElement) {
+            prevDraggingElement.setAttribute('drop-item', 'true');
+        }
+
+        droppableSlots.forEach(slot => slot.classList.remove(this.cssClass.selected));
     }
 
     checkCollision() {
