@@ -132,8 +132,7 @@ class DragAndDrop {
                 }
 
                 this.onDropCallback(data, (canBeDropped) => {
-                    console.log('Callback from GameController has been executed. Here should determine if card can be dropped or not');
-                    console.log('canBeDropped: ', canBeDropped);
+                    // If card can be dropped, callback to execute animations to move cards to their positions
                     if (!canBeDropped){
                         this.resetDraggedCards(nextDraggingElements, originalPosition, originalParentNode);
                         return;

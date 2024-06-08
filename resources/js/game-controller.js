@@ -35,17 +35,14 @@ class GameController {
             target.deckType = 'pile';
         }
 
-        console.log('Drop card action:');
-        console.log('Cards:', cards);
-        console.log('Target:', target);
         Livewire.dispatch('update-dropped-cards', { droppedCards: cards, dropSlot: target });
         const updateDroppedCardsCallback_cleanup = Livewire.on('update-dropped-cards-callback', (event) => {
             const data = event[0];
+
             if (callback && typeof callback === 'function') {
                 callback(data.can_be_dropped);
             }
 
-            console.log(data.next_card_to_be_shown);
             if (data.next_card_to_be_shown !== null && data.next_card_to_be_shown !== undefined){
                 const cardNode = Utils.buildNodeFromHtml(data.next_card_to_be_shown);
 
@@ -118,6 +115,5 @@ class Utils {
         return range.createContextualFragment(cardHtml).firstElementChild;
     }
 }
-
 
 window.GameController = GameController;

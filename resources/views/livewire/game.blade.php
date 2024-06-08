@@ -36,6 +36,7 @@
             </div>
         </div>
     </div>
+    
     <div class="container other-decks">
         <div class="row">
             <div class="col-1 card-deck" card-deck="1">
@@ -90,8 +91,6 @@
             </div>
         </div>
     </div>
-    <button @click="$dispatch('test-event')">...</button>
-
 
     @assets
         @vite('resources/js/drag-and-drop.js')

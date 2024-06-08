@@ -120,6 +120,7 @@ class Game extends Component
 
         if (!is_null($next_card)) {
             $deck_is_empty = false;
+            $next_card->isHidden = false;
             array_push($this->cards->main_deck_shown, $next_card);
             $card_html = Card::buildCard($next_card);
             if (count($this->cards->main_deck) == 0){
@@ -138,7 +139,7 @@ class Game extends Component
         $dropSlot = json_decode(json_encode($dropSlot));
         $foundCards = $this->findDroppedCards($droppedCards);
 
-        if (!$this->canBeDropped($foundCards[0], $dropSlot)){
+        if (!$this->canBeDropped($foundCards, $dropSlot)){
             $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => false]);
             return;
         }
@@ -153,35 +154,23 @@ class Game extends Component
             }
         }
 
-//        dump($this->nextCardToBeShown);
-//        dump($this->cards);
-        $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true, 'next_card_to_be_shown' => $this->nextCardToBeShown]);
+        $allCardsDebug = $this->cards;
+        $allCardsDebug = json_decode(json_encode($allCardsDebug), true);
+        $this->dispatch('update-dropped-cards-callback', ['can_be_dropped' => true, 'next_card_to_be_shown' => $this->nextCardToBeShown, 'allCardsDebug' => $allCardsDebug]);
         $this->nextCardToBeShown = null;
     }
 
-    private function canBeDropped($fromCard, $toCard): bool
+    private function canBeDropped($fromCards, $toCard): bool
     {
+        $fromCard = $fromCards[0];
+
         if ($toCard->deckType === 'deck' || $toCard->deckType === 'pile') {
             if ($toCard->uuid === null) {
                 // Empty slot conditions
-//                dump('is a slot');
-//                dump($toCard->deckType);
-//                if ($toCard->deckType === 'deck') {
-//                    if ($fromCard->number === 13){
-//                        return true;
-//                    }
-//                }
-//                else{
-//                    if ($fromCard->number === 1){
-//                        return true;
-//                    }
-//                }
                 if (($toCard->deckType === 'deck' && $fromCard->number === 13) ||
-                    ($toCard->deckType !== 'deck' && $fromCard->number === 1)) {
+                    ($toCard->deckType === 'pile' && $fromCard->number === 1 && count($fromCards) === 1)) {
                     return true;
                 }
-//                return ($toCard->deckType === 'deck' && $fromCard->number === 13) ||
-//                    ($toCard->deckType === 'pile' && $fromCard->number === 1);
             } else {
                 $toCard = $this->findDroppedCards(array($toCard));
                 $toCard = $toCard[0];
@@ -189,7 +178,7 @@ class Game extends Component
                 if ($toCard->deck_type === 'deck') {
                     return $fromCard->number + 1 === $toCard->number && $fromCard->type->color !== $toCard->type->color;
                 } else {
-                    return $fromCard->number === $toCard->number + 1 && $fromCard->type->id === $toCard->type->id;
+                    return $fromCard->number === $toCard->number + 1 && $fromCard->type->id === $toCard->type->id && count($fromCards) === 1;
                 }
             }
         }
@@ -236,19 +225,15 @@ class Game extends Component
         if ($card->deck_type_old === 'deck'){
             foreach ($this->cards->decks[$card_deck] as $key => $currentCard) {
                 if ($currentCard->uuid === $card->uuid) {
-//                    dump('unsetting card ', $this->cards->decks[$card_deck][$key]);
                     unset($this->cards->decks[$card_deck][$key]);
                     $this->cards->decks[$card_deck] = array_values($this->cards->decks[$card_deck]);
                 }
             }
 
-
             $should_show_next_card = $this->checkIfTheNextCardShouldBeShown(end($this->cards->decks[$card_deck]));
             if ($should_show_next_card){
                 end($this->cards->decks[$card_deck])->isHidden = false;
             }
-
-//            dump(end($this->cards->decks[$card_deck]));
         }
         else if ($card->deck_type_old === 'pile'){
             foreach ($this->cards->pile_decks[$card_deck] as $key => $currentCard) {
@@ -261,14 +246,12 @@ class Game extends Component
     }
 
     private function checkIfTheNextCardShouldBeShown($card){
-        if (!$card){
+        if (!$card || !$card->isHidden)
             return false;
-        }
 
-        if ($card->isHidden)
-            $card->isHidden = false;
-            $this->nextCardToBeShown = Card::buildCard($card);
-            return true;
+        $card->isHidden = false;
+        $this->nextCardToBeShown = Card::buildCard($card);
+        return true;
     }
 
     public function findDroppedCards($droppedCards) {
