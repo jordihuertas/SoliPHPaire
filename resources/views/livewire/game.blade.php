@@ -23,20 +23,20 @@
                 <x-card-slot :droppable="false"/>
             </div>
             <div class="col-1 offset-1 pile-deck h-0" card-deck="1">
-                <x-card-slot :droppable="true"/>
+                <x-card-slot :droppable="true" :winGameSpawnPoint="true"/>
             </div>
             <div class="col-1 pile-deck" card-deck="2">
-                <x-card-slot :droppable="true"/>
+                <x-card-slot :droppable="true" :winGameSpawnPoint="true"/>
             </div>
             <div class="col-1 pile-deck" card-deck="3">
-                <x-card-slot :droppable="true"/>
+                <x-card-slot :droppable="true" :winGameSpawnPoint="true"/>
             </div>
             <div class="col-1 pile-deck" card-deck="4">
-                <x-card-slot :droppable="true"/>
+                <x-card-slot :droppable="true" :winGameSpawnPoint="true"/>
             </div>
         </div>
     </div>
-    
+
     <div class="container other-decks">
         <div class="row">
             <div class="col-1 card-deck" card-deck="1">
@@ -94,6 +94,7 @@
 
     @assets
         @vite('resources/js/drag-and-drop.js')
+        @vite('resources/js/win-game.js')
         @vite('resources/js/game-controller.js')
     @endassets
 

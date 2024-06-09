@@ -14,19 +14,25 @@
     "isEntry": true
   },
   "resources/js/drag-and-drop.js": {
-    "file": "assets/drag-and-drop-zBq3FXmc.js",
+    "file": "assets/drag-and-drop-HxHhwvQf.js",
     "name": "drag-and-drop",
     "src": "resources/js/drag-and-drop.js",
     "isEntry": true
   },
   "resources/js/game-controller.js": {
-    "file": "assets/game-controller-l0sNRNKZ.js",
+    "file": "assets/game-controller-CfyWmvOq.js",
     "name": "game-controller",
     "src": "resources/js/game-controller.js",
     "isEntry": true
   },
+  "resources/js/win-game.js": {
+    "file": "assets/win-game-DzYFUTBx.js",
+    "name": "win-game",
+    "src": "resources/js/win-game.js",
+    "isEntry": true
+  },
   "resources/sass/app.scss": {
-    "file": "assets/app-Bm6Naymy.css",
+    "file": "assets/app-CIDO5NNh.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
   }

@@ -1,6 +1,7 @@
 class GameController {
     constructor() {
         this.dragAndDrop = new DragAndDrop('[drag-item]', '[drop-item]', this.onCardDropped.bind(this));
+        this.winGame = new WinGame();
         this.mainDeck = document.querySelector('#main_deck');
         this.mainDeckShown = document.querySelector('#main_deck_shown');
         this.init();
@@ -9,6 +10,7 @@ class GameController {
     init() {
         this.handleClickMainDeck = this.handleClickMainDeck.bind(this);
         this.mainDeck.addEventListener('click', this.handleClickMainDeck);
+        Utils.winFx();
     }
 
     onCardDropped(data, callback) {
@@ -113,6 +115,10 @@ class Utils {
     static buildNodeFromHtml(cardHtml){
         const range = document.createRange();
         return range.createContextualFragment(cardHtml).firstElementChild;
+    }
+
+    static winFx(){
+
     }
 }
 
