@@ -13,16 +13,18 @@ class WinGame {
         this.trailCards = [];
         this.trailInterval = 20;
         this.maxCards = 4;
-        this.maxTrailCards = 200;
+        this.maxTrailCards = 100;
         this.cardSpawnPoints = document.querySelectorAll('.win-game-spawn-point');
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
+        this.isDestroyed = false;
         this.addCardPeriodically();
         this.animateCards = this.animateCards.bind(this);
-        setInterval(this.createTrailCard.bind(this), this.trailInterval);
-        requestAnimationFrame(this.animateCards);
+        this.trailIntervalId = setInterval(this.createTrailCard.bind(this), this.trailInterval);
+        this.animationFrameId = requestAnimationFrame(this.animateCards);
     }
 
     createCard() {
@@ -80,6 +82,8 @@ class WinGame {
     }
 
     createTrailCard() {
+        if (this.isDestroyed) return;
+
         this.cards.forEach(cardData => {
             if (cardData.active) {
                 const trailCard = cardData.element.cloneNode(true);
@@ -102,6 +106,8 @@ class WinGame {
     }
 
     animateCards() {
+        if (this.isDestroyed) return;
+
         const activeCardsCount = this.cards.filter(card => card.active).length;
 
         if (activeCardsCount < this.maxCards) {
@@ -118,7 +124,6 @@ class WinGame {
                 if (cardData.posY + this.cardHeight >= window.innerHeight) {
                     cardData.posY = window.innerHeight - this.cardHeight;
 
-                    // Min bounce
                     if (Math.abs(cardData.velocityY) < this.minBounceVelocityY) {
                         cardData.velocityY = Math.sign(cardData.velocityY) * this.minBounceVelocityY;
                     } else {
@@ -126,7 +131,6 @@ class WinGame {
                     }
                 }
 
-                // Remove card on window width hit
                 if (cardData.posX + this.cardWidth >= window.innerWidth || cardData.posX <= 0) {
                     cardData.element.remove();
                     this.cards.splice(this.cards.indexOf(cardData), 1);
@@ -137,14 +141,34 @@ class WinGame {
             }
         });
 
-        requestAnimationFrame(this.animateCards);
+        this.animationFrameId = requestAnimationFrame(this.animateCards);
     }
 
     addCardPeriodically() {
+        if (this.isDestroyed) return;
+
         if (this.cards.length < this.maxCards) {
             this.createCard();
         }
-        setTimeout(() => this.addCardPeriodically(), 1000);
+        this.cardIntervalId = setTimeout(() => this.addCardPeriodically(), 1000);
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+
+        cancelAnimationFrame(this.animationFrameId);
+        clearInterval(this.trailIntervalId);
+        clearTimeout(this.cardIntervalId);
+
+        this.cards.forEach(cardData => {
+            cardData.element.remove();
+        });
+        this.trailCards.forEach(trailCard => {
+            trailCard.remove();
+        });
+
+        this.cards = [];
+        this.trailCards = [];
     }
 }
 
